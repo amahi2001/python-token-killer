@@ -1,4 +1,17 @@
 repos:
+  # Basic file hygiene
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-json
+      - id: check-merge-conflict
+      - id: check-added-large-files
+        args: [--maxkb=500]
+
+  # Ruff (lint + format)
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.15.0
     hooks:
@@ -6,6 +19,7 @@ repos:
         args: [--fix]
       - id: ruff-format
 
+  # Mypy (strict type checking on library source only)
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.20.0
     hooks:
