@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Any
 
 
@@ -36,7 +36,7 @@ class Minimizer(ABC):
         original = _serialize(obj)
         try:
             minimized = self._minimize(obj, aggressive=aggressive, **kw)
-        except (RecursionError, ValueError, TypeError, OverflowError) as exc:
+        except (RecursionError, ValueError, TypeError, OverflowError):
             # graceful degradation: fall back to str() if minimizer can't handle the input
             minimized = str(obj)
         return MinResult(
@@ -82,9 +82,9 @@ def _is_nullish(v: object) -> bool:
     return False
 
 
-def strip_nullish(d: dict) -> dict:
+def strip_nullish(d: dict[str, Any]) -> dict[str, Any]:
     """Recursively strip None, empty string, empty list, empty dict values."""
-    out: dict = {}
+    out: dict[str, Any] = {}
     for k, v in d.items():
         if _is_nullish(v):
             continue

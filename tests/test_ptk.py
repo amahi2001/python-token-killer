@@ -5,17 +5,16 @@ API and minimizer architecture.
 """
 
 import json
-import sys
 import os
+import sys
 
 import pytest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
 import ptk
+from ptk._base import MinResult, dedup_lines, strip_nullish
 from ptk._types import ContentType, detect
-from ptk._base import strip_nullish, dedup_lines, MinResult
-
 
 # ═══════════════════════════════════════════════════════════════════════
 # Type Detection (inspired by Cortex tests)
@@ -312,7 +311,7 @@ class TestDictMinimizer:
         d = {"level": 0}
         current = d
         for i in range(1, 20):
-            current[f"child"] = {"level": i}
+            current["child"] = {"level": i}
             current = current["child"]
         result = ptk.minimize(d)
         parsed = json.loads(result)

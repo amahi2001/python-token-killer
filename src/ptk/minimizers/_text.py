@@ -124,7 +124,7 @@ class TextMinimizer(Minimizer):
         return text.strip()
 
 
-def _word_abbrev_replace(m: re.Match) -> str:
+def _word_abbrev_replace(m: re.Match[str]) -> str:
     """Replace matched word with its abbreviation, preserving leading case."""
     word = m.group(0)
     abbrev = _WORD_ABBREVIATIONS[word.lower()]

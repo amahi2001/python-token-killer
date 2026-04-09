@@ -1,10 +1,10 @@
 # ptk — Python Token Killer
 
-[![CI](https://github.com/YOUR_USERNAME/ptk/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR_USERNAME/ptk/actions/workflows/ci.yml)
+[![CI](https://github.com/amahi2001/python-token-killer/actions/workflows/ci.yml/badge.svg)](https://github.com/amahi2001/python-token-killer/actions/workflows/ci.yml)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Minimize LLM tokens from Python objects in one call. Zero required dependencies. 153 tests.
+Minimize LLM tokens from Python objects in one call. Zero required dependencies. 322 tests.
 
 Inspired by [RTK (Rust Token Killer)](https://github.com/rtk-ai/rtk) — but designed as a Python library for programmatic use, not a CLI proxy.
 
@@ -25,6 +25,23 @@ pip install python-token-killer
 ```
 
 Optional: `pip install python-token-killer[tiktoken]` for exact token counting.
+
+## Benchmarks
+
+Real token counts via tiktoken (`cl100k_base`, same tokenizer as GPT-4 / Claude):
+
+```
+Benchmark                      Original  Default   Saved    Aggressive  Saved
+API response (JSON)                1450      792   45.4%         782   46.1%
+Python module (code)               2734     2113   22.7%         309   88.7%
+Server log (58 lines)              1389     1388    0.1%         231   83.4%
+50 user records (list)             2774      922   66.8%         922   66.8%
+Verbose paragraph (text)            101       96    5.0%          74   26.7%
+                                 ─────────────────────────────────────────────
+TOTAL                             11182     7424   33.6%        2627   76.5%
+```
+
+Run yourself: `python benchmarks/bench.py`
 
 ## What It Does
 
@@ -172,7 +189,7 @@ clean = ptk.minimize(response)  # strip nulls, compact JSON
 ## Development
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/ptk.git
+git clone https://github.com/amahi2001/python-token-killer.git
 cd ptk
 pip install -e ".[dev]"
 python -m pytest tests/ -v

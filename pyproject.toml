@@ -31,5 +31,17 @@ Repository = "https://github.com/ptk-ai/ptk"
 [tool.hatch.build.targets.wheel]
 packages = ["src/ptk"]
 
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "SIM"]
+ignore = ["E501"]  # line length handled by formatter
+
+[tool.mypy]
+strict = true
+warn_return_any = true
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]

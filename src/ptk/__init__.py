@@ -73,7 +73,8 @@ def minimize(
         Minimized string representation.
     """
     ct = _resolve_type(obj, content_type)
-    return _ROUTER[ct].run(obj, aggressive=aggressive, **kw).output
+    result: str = _ROUTER[ct].run(obj, aggressive=aggressive, **kw).output
+    return result
 
 
 def stats(
@@ -121,8 +122,8 @@ def detect_type(obj: Any) -> str:
 # ── callable module trick ───────────────────────────────────────────────
 # Allows `import ptk; ptk(obj)` as shorthand for `ptk.minimize(obj)`.
 
-import sys as _sys
-import types as _types
+import sys as _sys  # noqa: E402
+import types as _types  # noqa: E402
 
 
 class _CallableModule(_types.ModuleType):

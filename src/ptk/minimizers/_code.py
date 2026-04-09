@@ -67,17 +67,17 @@ def _has_pragma(comment: str) -> bool:
     return any(kw in comment for kw in _PRAGMA_KEYWORDS)
 
 
-def _strip_comment_if_safe(m: re.Match) -> str:
+def _strip_comment_if_safe(m: re.Match[str]) -> str:
     """Remove a comment unless it contains a pragma."""
     return m.group(0) if _has_pragma(m.group(0)) else ""
 
 
-def _strip_block_comment_if_safe(m: re.Match) -> str:
+def _strip_block_comment_if_safe(m: re.Match[str]) -> str:
     """Remove a block comment unless it contains a pragma."""
     return m.group(0) if _has_pragma(m.group(0)) else ""
 
 
-def _collapse_docstring(m: re.Match) -> str:
+def _collapse_docstring(m: re.Match[str]) -> str:
     """Collapse a multi-line docstring to its first line only."""
     full = m.group(0)
     # detect the quote style

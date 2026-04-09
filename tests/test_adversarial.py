@@ -8,9 +8,8 @@ Every test must either:
 
 import copy
 import json
-import sys
 import os
-import re
+import sys
 import threading
 import time
 from collections import OrderedDict, defaultdict
@@ -22,9 +21,8 @@ import pytest
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
 import ptk
-from ptk._types import ContentType, detect
-from ptk._base import strip_nullish, dedup_lines, _serialize
-
+from ptk._base import _serialize
+from ptk._types import ContentType
 
 # ═══════════════════════════════════════════════════════════════════════
 # 1. TYPE CHAOS — every Python type that could be passed in
@@ -216,7 +214,7 @@ class TestTypeChaos:
         assert isinstance(result, str)
 
     def test_dict_with_date_value(self):
-        from datetime import datetime, date
+        from datetime import date, datetime
         result = ptk.minimize({"ts": datetime.now(), "d": date.today()})
         assert isinstance(result, str)
 
@@ -829,7 +827,7 @@ class TestPerformance:
             lines.append(f"2024-01-01T00:00:{i:05d}Z [{level}] Message {i % 100}")
         log = "\n".join(lines)
         start = time.time()
-        result = ptk.minimize(log, content_type="log")
+        ptk.minimize(log, content_type="log")
         elapsed = time.time() - start
         assert elapsed < 5.0, f"Took {elapsed:.1f}s"
 
@@ -845,7 +843,7 @@ class TestPerformance:
                     parts.append(f" context_{hunk}_{j}\n")
         diff = "".join(parts)
         start = time.time()
-        result = ptk.minimize(diff, content_type="diff")
+        ptk.minimize(diff, content_type="diff")
         elapsed = time.time() - start
         assert elapsed < 5.0, f"Took {elapsed:.1f}s"
 
@@ -856,7 +854,7 @@ class TestPerformance:
                  "documentation", "specification", "requirements", "notifications"]
         text = " ".join(words * 1000)
         start = time.time()
-        result = ptk.minimize(text, content_type="text")
+        ptk.minimize(text, content_type="text")
         elapsed = time.time() - start
         assert elapsed < 5.0, f"Took {elapsed:.1f}s"
 

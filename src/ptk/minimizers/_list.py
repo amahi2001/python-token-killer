@@ -44,7 +44,7 @@ class ListMinimizer(Minimizer):
         return _dedup_list(items)
 
 
-def _tabular(rows: list[dict]) -> str:
+def _tabular(rows: list[dict[str, Any]]) -> str:
     """Schema-once tabular: declare fields in header, one CSV-ish row per item."""
     fields: list[str] = list(dict.fromkeys(f for row in rows for f in row))
     header = f"[{len(rows)}]{{{','.join(fields)}}}:"
@@ -55,7 +55,7 @@ def _tabular(rows: list[dict]) -> str:
     return f"{header}\n{body}"
 
 
-def _dedup_list(items: list) -> str:
+def _dedup_list(items: list[Any]) -> str:
     """Collapse duplicate primitives: [a, a, a, b] → a (x3)\nb"""
     # json-serialize each item for stable hashing
     serialized = [json.dumps(i, separators=(",", ":"), default=str) for i in items]
@@ -76,7 +76,7 @@ def _dedup_list(items: list) -> str:
     return "\n".join(lines)
 
 
-def _sample(items: list[dict], n: int) -> list[dict]:
+def _sample(items: list[dict[str, Any]], n: int) -> list[dict[str, Any]]:
     """Deterministic even-spaced sampling — keeps first and last."""
     if len(items) <= n:
         return items

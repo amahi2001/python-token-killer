@@ -5,7 +5,7 @@ Thanks for your interest in contributing to python-token-killer.
 ## Development Setup
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/ptk.git
+git clone https://github.com/amahi2001/python-token-killer.git
 cd ptk
 python -m venv .venv
 source .venv/bin/activate
@@ -18,7 +18,7 @@ pip install -e ".[dev]"
 python -m pytest tests/ -v
 ```
 
-All 153+ tests must pass before submitting a PR.
+All tests must pass before submitting a PR.
 
 ## Adding a New Minimizer
 

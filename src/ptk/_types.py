@@ -47,9 +47,8 @@ def detect(obj: object) -> ContentType:
     head = obj[:2048]
 
     # diff detection — very specific prefix patterns
-    if any(head.startswith(p) or f"\n{p}" in head for p in _DIFF_PREFIXES):
-        if "@@" in head:
-            return ContentType.DIFF
+    if any(head.startswith(p) or f"\n{p}" in head for p in _DIFF_PREFIXES) and "@@" in head:
+        return ContentType.DIFF
 
     # log detection — any log-level marker in first chunk
     if any(m in head for m in _LOG_PATTERNS):

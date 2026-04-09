@@ -44,11 +44,11 @@ class DictMinimizer(Minimizer):
 
 # ── internal helpers ────────────────────────────────────────────────────
 
-def _flatten_single_children(d: dict, _depth: int = 0) -> dict:
+def _flatten_single_children(d: dict[str, Any], _depth: int = 0) -> dict[str, Any]:
     """Collapse {"a": {"b": val}} → {"a.b": val} up to 4 levels."""
     if _depth > 4:
         return d
-    out: dict = {}
+    out: dict[str, Any] = {}
     for k, v in d.items():
         if isinstance(v, dict) and len(v) == 1:
             inner_k, inner_v = next(iter(v.items()))
@@ -98,9 +98,9 @@ _KEY_MAP: dict[str, str] = {
 }
 
 
-def _shorten_keys(d: dict) -> dict:
+def _shorten_keys(d: dict[str, Any]) -> dict[str, Any]:
     """Recursively shorten known verbose keys."""
-    out: dict = {}
+    out: dict[str, Any] = {}
     for k, v in d.items():
         short = _KEY_MAP.get(k, k)
         if isinstance(v, dict):
@@ -112,9 +112,9 @@ def _shorten_keys(d: dict) -> dict:
     return out
 
 
-def _shorten_dotted_keys(d: dict) -> dict:
+def _shorten_dotted_keys(d: dict[str, Any]) -> dict[str, Any]:
     """Shorten individual segments of dotted keys (from flattening)."""
-    out: dict = {}
+    out: dict[str, Any] = {}
     for k, v in d.items():
         if "." in k:
             parts = [_KEY_MAP.get(p, p) for p in k.split(".")]
@@ -124,7 +124,7 @@ def _shorten_dotted_keys(d: dict) -> dict:
     return out
 
 
-def _to_kv(d: dict, _prefix: str = "") -> str:
+def _to_kv(d: dict[str, Any], _prefix: str = "") -> str:
     """Flat key:value format — one line per leaf."""
     lines: list[str] = []
     for k, v in d.items():
@@ -136,7 +136,7 @@ def _to_kv(d: dict, _prefix: str = "") -> str:
     return "\n".join(lines)
 
 
-def _to_tabular(d: dict) -> str:
+def _to_tabular(d: dict[str, Any]) -> str:
     """Render any list-of-dicts values as header-once tabular rows.
 
     Non-list values render as kv pairs above the table.
