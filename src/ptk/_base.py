@@ -34,7 +34,11 @@ class Minimizer(ABC):
 
     def run(self, obj: Any, *, aggressive: bool = False, **kw: Any) -> MinResult:
         original = _serialize(obj)
-        minimized = self._minimize(obj, aggressive=aggressive, **kw)
+        try:
+            minimized = self._minimize(obj, aggressive=aggressive, **kw)
+        except (RecursionError, ValueError, TypeError, OverflowError) as exc:
+            # graceful degradation: fall back to str() if minimizer can't handle the input
+            minimized = str(obj)
         return MinResult(
             output=minimized,
             original_len=len(original),
@@ -45,12 +49,20 @@ class Minimizer(ABC):
 # ── shared helpers (used across minimizers) ─────────────────────────────
 
 def _serialize(obj: Any) -> str:
-    """Cheaply serialize an object to string for length measurement."""
+    """Cheaply serialize an object to string for length measurement.
+
+    Must NEVER raise — this is used for metrics, not output.
+    Handles circular refs, non-serializable types, tuple keys, etc.
+    """
     if isinstance(obj, str):
         return obj
     if isinstance(obj, (dict, list, tuple)):
         import json
-        return json.dumps(obj, separators=(",", ":"))
+        try:
+            return json.dumps(obj, separators=(",", ":"), default=str)
+        except (ValueError, TypeError, OverflowError):
+            # circular reference, non-string keys, or other json failure
+            return str(obj)
     return str(obj)
 
 

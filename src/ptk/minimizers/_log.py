@@ -36,6 +36,10 @@ class LogMinimizer(Minimizer):
     def _minimize(self, obj: Any, *, aggressive: bool = False, **kw: Any) -> str:
         text = obj if isinstance(obj, str) else str(obj)
 
+        # bail early on blank input
+        if not text.strip():
+            return ""
+
         if aggressive:
             text = _TIMESTAMP.sub("", text)
 
