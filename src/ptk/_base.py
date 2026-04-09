@@ -10,6 +10,7 @@ from typing import Any
 @dataclass(frozen=True, slots=True)
 class MinResult:
     """Immutable result from a minimizer pass."""
+
     output: str
     original_len: int
     minimized_len: int
@@ -48,6 +49,7 @@ class Minimizer(ABC):
 
 # ── shared helpers (used across minimizers) ─────────────────────────────
 
+
 def _serialize(obj: Any) -> str:
     """Cheaply serialize an object to string for length measurement.
 
@@ -58,6 +60,7 @@ def _serialize(obj: Any) -> str:
         return obj
     if isinstance(obj, (dict, list, tuple)):
         import json
+
         try:
             return json.dumps(obj, separators=(",", ":"), default=str)
         except (ValueError, TypeError, OverflowError):
@@ -94,8 +97,7 @@ def strip_nullish(d: dict[str, Any]) -> dict[str, Any]:
                 out[k] = cleaned
         elif isinstance(v, list):
             cleaned_list = [
-                strip_nullish(i) if isinstance(i, dict) else i
-                for i in v if not _is_nullish(i)
+                strip_nullish(i) if isinstance(i, dict) else i for i in v if not _is_nullish(i)
             ]
             if cleaned_list:
                 out[k] = cleaned_list

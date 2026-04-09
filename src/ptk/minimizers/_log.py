@@ -9,17 +9,17 @@ from ptk._base import Minimizer, dedup_lines
 
 # precompiled
 _LOG_LEVEL = re.compile(
-    r'\b(ERROR|WARN(?:ING)?|CRITICAL|FATAL|EXCEPTION|SEVERE|PANIC)\b',
+    r"\b(ERROR|WARN(?:ING)?|CRITICAL|FATAL|EXCEPTION|SEVERE|PANIC)\b",
     re.IGNORECASE,
 )
 _TIMESTAMP = re.compile(
-    r'^\d{4}[-/]\d{2}[-/]\d{2}[T ]\d{2}:\d{2}:\d{2}[.,]?\d*\s*(?:[+-]\d{2}:?\d{2}|Z)?\s*',
+    r"^\d{4}[-/]\d{2}[-/]\d{2}[T ]\d{2}:\d{2}:\d{2}[.,]?\d*\s*(?:[+-]\d{2}:?\d{2}|Z)?\s*",
     re.MULTILINE,
 )
 # stack trace markers — lines matching these are always preserved
 _STACKTRACE_RE = re.compile(
     r'^\s*(Traceback \(most recent|File "|\s+raise |'
-    r'\w+Error:|\w+Exception:|\w+Warning:|at \S+\.\S+\()',
+    r"\w+Error:|\w+Exception:|\w+Warning:|at \S+\.\S+\()",
     re.MULTILINE,
 )
 
@@ -57,9 +57,7 @@ def _errors_only(text: str) -> str:
     keep: set[int] = set()
     for i, line in enumerate(lines):
         is_important = (
-            _LOG_LEVEL.search(line)
-            or _STACKTRACE_RE.match(line)
-            or "failed" in line.lower()
+            _LOG_LEVEL.search(line) or _STACKTRACE_RE.match(line) or "failed" in line.lower()
         )
         if is_important:
             # keep the important line + 1 line of context before/after

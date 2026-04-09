@@ -9,36 +9,49 @@ from ptk._base import Minimizer
 
 # ── precompiled regexes (compiled once at import time) ──────────────────
 
-_BLOCK_COMMENT = re.compile(r'/\*.*?\*/', re.DOTALL)
+_BLOCK_COMMENT = re.compile(r"/\*.*?\*/", re.DOTALL)
 _INLINE_COMMENT_C = re.compile(r'(?<!["\'])//.*$', re.MULTILINE)
 _INLINE_COMMENT_PY = re.compile(r'(?<!["\'])#.*$', re.MULTILINE)
-_DOCSTRING = re.compile(r'(\"\"\"[\s\S]*?\"\"\"|\'\'\'[\s\S]*?\'\'\')')
-_BLANK_LINES = re.compile(r'\n{3,}')
-_TRAILING_WS = re.compile(r'[ \t]+$', re.MULTILINE)
+_DOCSTRING = re.compile(r"(\"\"\"[\s\S]*?\"\"\"|\'\'\'[\s\S]*?\'\'\')")
+_BLANK_LINES = re.compile(r"\n{3,}")
+_TRAILING_WS = re.compile(r"[ \t]+$", re.MULTILINE)
 
 # pragma/directive comments that must be preserved
-_PRAGMA_KEYWORDS: frozenset[str] = frozenset({
-    "noqa", "type: ignore", "type:ignore", "TODO", "FIXME", "HACK", "XXX",
-    "pragma", "pylint:", "fmt:",
-    "eslint-disable", "eslint-enable", "@ts-ignore", "@ts-expect-error",
-    "noinspection",
-})
+_PRAGMA_KEYWORDS: frozenset[str] = frozenset(
+    {
+        "noqa",
+        "type: ignore",
+        "type:ignore",
+        "TODO",
+        "FIXME",
+        "HACK",
+        "XXX",
+        "pragma",
+        "pylint:",
+        "fmt:",
+        "eslint-disable",
+        "eslint-enable",
+        "@ts-ignore",
+        "@ts-expect-error",
+        "noinspection",
+    }
+)
 
 # signature patterns for common languages
 _PY_SIG = re.compile(
-    r'^([ \t]*(?:async\s+)?(?:def|class)\s+\w+.*?:)\s*$',
+    r"^([ \t]*(?:async\s+)?(?:def|class)\s+\w+.*?:)\s*$",
     re.MULTILINE,
 )
 _JS_SIG = re.compile(
-    r'^([ \t]*(?:export\s+)?(?:async\s+)?(?:function\s+\w+|(?:const|let|var)\s+\w+\s*=\s*(?:async\s+)?(?:\([^)]*\)|[^=])\s*=>)[^{]*)',
+    r"^([ \t]*(?:export\s+)?(?:async\s+)?(?:function\s+\w+|(?:const|let|var)\s+\w+\s*=\s*(?:async\s+)?(?:\([^)]*\)|[^=])\s*=>)[^{]*)",
     re.MULTILINE,
 )
 _RUST_SIG = re.compile(
-    r'^([ \t]*(?:pub\s+)?(?:async\s+)?fn\s+\w+[^{]*)',
+    r"^([ \t]*(?:pub\s+)?(?:async\s+)?fn\s+\w+[^{]*)",
     re.MULTILINE,
 )
 _GO_SIG = re.compile(
-    r'^([ \t]*func\s+(?:\([^)]*\)\s+)?\w+[^{]*)',
+    r"^([ \t]*func\s+(?:\([^)]*\)\s+)?\w+[^{]*)",
     re.MULTILINE,
 )
 

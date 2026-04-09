@@ -34,17 +34,12 @@ ptk.minimize(obj) → _types.detect(obj) → _ROUTER[type].run(obj) → MinResul
 ## Commands
 
 ```bash
-# run tests (322 tests, <0.5s)
-PYTHONPATH=src python -m pytest tests/ -v
-
-# run benchmarks (requires tiktoken)
-python benchmarks/bench.py
-
-# type check
-mypy --strict src/ptk/
-
-# lint
-ruff check src/ tests/
+make check      # lint + typecheck + tests — run before every commit
+make test       # tests only (322 tests, <0.5s)
+make lint       # ruff check + format check
+make typecheck  # mypy --strict
+make bench      # benchmarks with tiktoken
+make fix        # auto-fix lint/formatting
 ```
 
 ## Test Structure

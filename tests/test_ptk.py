@@ -20,6 +20,7 @@ from ptk._types import ContentType, detect
 # Type Detection (inspired by Cortex tests)
 # ═══════════════════════════════════════════════════════════════════════
 
+
 class TestDetection:
     """Content type auto-detection — maps to claw-compactor's Cortex stage."""
 
@@ -56,13 +57,15 @@ class TestDetection:
         assert detect("export default function foo() {}") == ContentType.CODE
 
     def test_code_rust_fn(self):
-        assert detect("fn main() {\n    println!(\"hi\");\n}") == ContentType.CODE
+        assert detect('fn main() {\n    println!("hi");\n}') == ContentType.CODE
 
     def test_code_go_func(self):
-        assert detect("package main\n\nfunc main() {\n\tfmt.Println(\"hello\")\n}") == ContentType.CODE
+        assert (
+            detect('package main\n\nfunc main() {\n\tfmt.Println("hello")\n}') == ContentType.CODE
+        )
 
     def test_code_go_import(self):
-        assert detect("package main\nimport \"fmt\"\nfunc main() {}") == ContentType.CODE
+        assert detect('package main\nimport "fmt"\nfunc main() {}') == ContentType.CODE
 
     # ── Log detection ──
     def test_log_bracketed(self):
@@ -114,6 +117,7 @@ class TestDetection:
 # ═══════════════════════════════════════════════════════════════════════
 # Base Helpers
 # ═══════════════════════════════════════════════════════════════════════
+
 
 class TestStripNullish:
     """Recursive nullish value stripping — used by DictMinimizer and ListMinimizer."""
@@ -217,6 +221,7 @@ class TestMinResult:
 # ═══════════════════════════════════════════════════════════════════════
 # DictMinimizer (maps to Ionizer + RLE)
 # ═══════════════════════════════════════════════════════════════════════
+
 
 class TestDictMinimizer:
     """Dict/JSON compression — null stripping, key shortening, formatting."""
@@ -329,6 +334,7 @@ class TestDictMinimizer:
 # ListMinimizer (maps to Ionizer array handling)
 # ═══════════════════════════════════════════════════════════════════════
 
+
 class TestListMinimizer:
     """List/array compression — tabular, dedup, sampling."""
 
@@ -410,6 +416,7 @@ class TestListMinimizer:
 # ═══════════════════════════════════════════════════════════════════════
 # CodeMinimizer (maps to Neurosyntax + StructuralCollapse)
 # ═══════════════════════════════════════════════════════════════════════
+
 
 class TestCodeMinimizer:
     """Code compression — comments, docstrings, signatures, pragma preservation."""
@@ -586,6 +593,7 @@ def process_items(items: List[str], max_count: int = 100) -> List[str]:
 # LogMinimizer (maps to LogCrunch)
 # ═══════════════════════════════════════════════════════════════════════
 
+
 class TestLogMinimizer:
     """Log compression — dedup, error filtering, stack traces."""
 
@@ -695,6 +703,7 @@ class TestLogMinimizer:
 # DiffMinimizer (maps to DiffCrunch)
 # ═══════════════════════════════════════════════════════════════════════
 
+
 class TestDiffMinimizer:
     """Diff compression — context folding, noise stripping."""
 
@@ -731,9 +740,9 @@ class TestDiffMinimizer:
         "+import json  # added comment\n"
         " \n"
         " def start():\n"
-        "+    log.info(\"starting\")\n"
-        "     host = os.environ.get(\"HOST\", \"0.0.0.0\")\n"
-        "     port = int(os.environ.get(\"PORT\", 8080))\n"
+        '+    log.info("starting")\n'
+        '     host = os.environ.get("HOST", "0.0.0.0")\n'
+        '     port = int(os.environ.get("PORT", 8080))\n'
         "     context_line_1 = True\n"
         "     context_line_2 = True\n"
         "     context_line_3 = True\n"
@@ -799,6 +808,7 @@ class TestDiffMinimizer:
 # ═══════════════════════════════════════════════════════════════════════
 # TextMinimizer (maps to Abbrev + TokenOpt)
 # ═══════════════════════════════════════════════════════════════════════
+
 
 class TestTextMinimizer:
     """Text compression — phrase abbreviation, word abbreviation, filler removal."""
@@ -913,6 +923,7 @@ class TestTextMinimizer:
 # Top-Level API
 # ═══════════════════════════════════════════════════════════════════════
 
+
 class TestAPI:
     def test_minimize_returns_string(self):
         assert isinstance(ptk.minimize({"a": 1}), str)
@@ -957,10 +968,24 @@ class TestAPI:
         response = {
             "data": {
                 "users": [
-                    {"id": 1, "name": "Alice", "email": "a@b.com", "bio": None,
-                     "avatar_url": "", "metadata": {}, "settings": {"theme": "dark", "notifications": None}},
-                    {"id": 2, "name": "Bob", "email": "b@b.com", "bio": "",
-                     "avatar_url": None, "metadata": {}, "settings": {"theme": "light", "notifications": ""}},
+                    {
+                        "id": 1,
+                        "name": "Alice",
+                        "email": "a@b.com",
+                        "bio": None,
+                        "avatar_url": "",
+                        "metadata": {},
+                        "settings": {"theme": "dark", "notifications": None},
+                    },
+                    {
+                        "id": 2,
+                        "name": "Bob",
+                        "email": "b@b.com",
+                        "bio": "",
+                        "avatar_url": None,
+                        "metadata": {},
+                        "settings": {"theme": "light", "notifications": ""},
+                    },
                 ]
             },
             "meta": {"page": 1, "total": 2, "next_cursor": None},

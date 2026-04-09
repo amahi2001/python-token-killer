@@ -53,6 +53,7 @@ _ROUTER: dict[ContentType, Any] = {
 
 # ── public API ──────────────────────────────────────────────────────────
 
+
 def minimize(
     obj: Any,
     *,
@@ -143,6 +144,7 @@ _self.__class__ = _CallableModule
 
 # ── private helpers ─────────────────────────────────────────────────────
 
+
 def _resolve_type(obj: Any, hint: ContentType | str | None) -> ContentType:
     if hint is None:
         return detect(obj)
@@ -156,6 +158,7 @@ def _estimate_tokens(original: str, minimized: str) -> tuple[int | None, int | N
     """Try tiktoken for accurate counts, fall back to len//4 heuristic."""
     try:
         import tiktoken
+
         enc = tiktoken.get_encoding("cl100k_base")
         return len(enc.encode(original)), len(enc.encode(minimized))
     except ImportError:

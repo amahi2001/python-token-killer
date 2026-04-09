@@ -1,0 +1,46 @@
+name: Bug Report
+description: Something isn't working as expected
+labels: ["bug"]
+body:
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What did you expect vs what actually happened?
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Minimal reproduction
+      description: The smallest code snippet that triggers the bug.
+      render: python
+      placeholder: |
+        import ptk
+        result = ptk.minimize(...)  # expected X, got Y
+    validations:
+      required: true
+
+  - type: textarea
+    id: traceback
+    attributes:
+      label: Traceback (if applicable)
+      description: Full error traceback.
+      render: text
+
+  - type: input
+    id: ptk-version
+    attributes:
+      label: ptk version
+      placeholder: "0.1.0"
+    validations:
+      required: true
+
+  - type: input
+    id: python-version
+    attributes:
+      label: Python version
+      placeholder: "3.12"
+    validations:
+      required: true

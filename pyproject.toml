@@ -22,11 +22,13 @@ classifiers = [
 
 [project.optional-dependencies]
 tiktoken = ["tiktoken>=0.7"]
-dev = ["pytest>=8", "tiktoken>=0.7"]
+dev = ["pytest>=8", "tiktoken>=0.7", "ruff>=0.15", "mypy>=1.20", "pre-commit>=4"]
 
 [project.urls]
-Homepage = "https://github.com/ptk-ai/ptk"
-Repository = "https://github.com/ptk-ai/ptk"
+Homepage = "https://github.com/amahi2001/python-token-killer"
+Repository = "https://github.com/amahi2001/python-token-killer"
+Issues = "https://github.com/amahi2001/python-token-killer/issues"
+Changelog = "https://github.com/amahi2001/python-token-killer/blob/main/CHANGELOG.md"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/ptk"]

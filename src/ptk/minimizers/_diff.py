@@ -55,8 +55,7 @@ def _fold_diff(text: str, *, context: int, aggressive: bool) -> str:
 def _is_significant(line: str) -> bool:
     """Lines that carry meaningful diff information."""
     return (
-        line.startswith(("+", "-", "@@", "diff "))
-        and not line.startswith(("+++", "---"))
+        line.startswith(("+", "-", "@@", "diff ")) and not line.startswith(("+++", "---"))
     ) or line.startswith(("+++", "---"))
 
 

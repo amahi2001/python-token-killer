@@ -28,6 +28,7 @@ from ptk._types import ContentType
 # 1. TYPE CHAOS — every Python type that could be passed in
 # ═══════════════════════════════════════════════════════════════════════
 
+
 class TestTypeChaos:
     """Pass every conceivable Python type through ptk.minimize()."""
 
@@ -119,6 +120,7 @@ class TestTypeChaos:
 
     def test_module(self):
         import json as j
+
         result = ptk.minimize(j)
         assert isinstance(result, str)
 
@@ -132,21 +134,26 @@ class TestTypeChaos:
         class MyObj:
             def __str__(self):
                 return "MyObj(custom)"
+
         result = ptk.minimize(MyObj())
         assert isinstance(result, str)
 
     def test_custom_class_without_str(self):
         """Objects with only default __str__ should still work."""
+
         class Bare:
             pass
+
         result = ptk.minimize(Bare())
         assert isinstance(result, str)
 
     def test_custom_class_with_broken_str(self):
         """Object whose __str__ raises should be handled gracefully."""
+
         class Broken:
             def __str__(self):
                 raise RuntimeError("I'm broken")
+
         # This will propagate — at minimum it shouldn't be a confusing error
         with pytest.raises(RuntimeError, match="I'm broken"):
             ptk.minimize(Broken())
@@ -155,6 +162,7 @@ class TestTypeChaos:
         class ReprOnly:
             def __repr__(self):
                 return "ReprOnly(42)"
+
         result = ptk.minimize(ReprOnly())
         assert isinstance(result, str)
 
@@ -163,6 +171,7 @@ class TestTypeChaos:
         class Point:
             x: int
             y: int
+
         result = ptk.minimize(Point(1, 2))
         assert isinstance(result, str)
 
@@ -170,6 +179,7 @@ class TestTypeChaos:
         class Coord(NamedTuple):
             x: int
             y: int
+
         result = ptk.minimize(Coord(1, 2))
         assert isinstance(result, str)
 
@@ -215,6 +225,7 @@ class TestTypeChaos:
 
     def test_dict_with_date_value(self):
         from datetime import date, datetime
+
         result = ptk.minimize({"ts": datetime.now(), "d": date.today()})
         assert isinstance(result, str)
 
@@ -253,6 +264,7 @@ class TestTypeChaos:
 # ═══════════════════════════════════════════════════════════════════════
 # 2. CIRCULAR REFERENCES & RECURSION BOMBS
 # ═══════════════════════════════════════════════════════════════════════
+
 
 class TestCircularAndDeep:
     """Self-referencing structures and extreme nesting."""
@@ -331,6 +343,7 @@ class TestCircularAndDeep:
 # 3. EMPTY & BOUNDARY INPUTS
 # ═══════════════════════════════════════════════════════════════════════
 
+
 class TestEmptyAndBoundary:
     """The boring edge cases that always bite in production."""
 
@@ -400,6 +413,7 @@ class TestEmptyAndBoundary:
 # ═══════════════════════════════════════════════════════════════════════
 # 4. UNICODE, EMOJI, ENCODING EDGE CASES
 # ═══════════════════════════════════════════════════════════════════════
+
 
 class TestUnicode:
     """Encoding edge cases that surface in real-world data."""
@@ -480,6 +494,7 @@ class TestUnicode:
 # 5. REGEX SAFETY — ReDoS & special characters
 # ═══════════════════════════════════════════════════════════════════════
 
+
 class TestRegexSafety:
     """Inputs designed to break or slow down regex patterns."""
 
@@ -543,6 +558,7 @@ class TestRegexSafety:
 # 6. API CONTRACT TESTS — return type & structure guarantees
 # ═══════════════════════════════════════════════════════════════════════
 
+
 class TestAPIContracts:
     """Every public function must fulfill its documented contract."""
 
@@ -568,8 +584,15 @@ class TestAPIContracts:
         s = ptk.stats(obj)
         assert isinstance(s, dict)
         # all required keys present
-        for key in ("output", "original_len", "minimized_len", "savings_pct",
-                     "content_type", "original_tokens", "minimized_tokens"):
+        for key in (
+            "output",
+            "original_len",
+            "minimized_len",
+            "savings_pct",
+            "content_type",
+            "original_tokens",
+            "minimized_tokens",
+        ):
             assert key in s, f"Missing key: {key}"
         # type checks
         assert isinstance(s["output"], str)
@@ -625,6 +648,7 @@ class TestAPIContracts:
 # 7. INPUT MUTATION TESTS — ptk must NEVER modify its input
 # ═══════════════════════════════════════════════════════════════════════
 
+
 class TestInputMutation:
     """Verify that ptk never modifies the original input object."""
 
@@ -662,6 +686,7 @@ class TestInputMutation:
 # ═══════════════════════════════════════════════════════════════════════
 # 8. CONCURRENCY — thread safety of singleton minimizers
 # ═══════════════════════════════════════════════════════════════════════
+
 
 class TestConcurrency:
     """Minimizers are singletons in _ROUTER — verify thread safety."""
@@ -740,6 +765,7 @@ class TestConcurrency:
 # 9. SERIALIZATION EDGE CASES — _serialize specifically
 # ═══════════════════════════════════════════════════════════════════════
 
+
 class TestSerialize:
     """The _serialize function is used for length measurement — it must not crash."""
 
@@ -784,19 +810,14 @@ class TestSerialize:
 # 10. LARGE INPUT PERFORMANCE (no timeouts)
 # ═══════════════════════════════════════════════════════════════════════
 
+
 class TestPerformance:
     """Large inputs must complete in reasonable time (< 5 seconds)."""
 
     def test_large_json_payload(self):
         """1000 records with 10 fields each."""
-        records = [
-            {f"field_{j}": f"value_{i}_{j}" for j in range(10)}
-            for i in range(1000)
-        ]
-        records_with_nulls = [
-            {**r, "empty1": None, "empty2": "", "empty3": []}
-            for r in records
-        ]
+        records = [{f"field_{j}": f"value_{i}_{j}" for j in range(10)} for i in range(1000)]
+        records_with_nulls = [{**r, "empty1": None, "empty2": "", "empty3": []} for r in records]
         start = time.time()
         result = ptk.minimize(records_with_nulls)
         elapsed = time.time() - start
@@ -835,7 +856,7 @@ class TestPerformance:
         """Diff with 5000 context lines and 10 changes."""
         parts = ["diff --git a/f b/f\n--- a/f\n+++ b/f\n"]
         for hunk in range(10):
-            parts.append(f"@@ -{hunk*500},{500} +{hunk*500},{501} @@\n")
+            parts.append(f"@@ -{hunk * 500},{500} +{hunk * 500},{501} @@\n")
             for j in range(500):
                 if j == 250:
                     parts.append(f"-old_{hunk}\n+new_{hunk}\n")
@@ -849,9 +870,20 @@ class TestPerformance:
 
     def test_large_text_with_abbreviations(self):
         """10,000 word text with lots of abbreviatable words."""
-        words = ["implementation", "configuration", "production", "environment",
-                 "application", "infrastructure", "authentication", "repository",
-                 "documentation", "specification", "requirements", "notifications"]
+        words = [
+            "implementation",
+            "configuration",
+            "production",
+            "environment",
+            "application",
+            "infrastructure",
+            "authentication",
+            "repository",
+            "documentation",
+            "specification",
+            "requirements",
+            "notifications",
+        ]
         text = " ".join(words * 1000)
         start = time.time()
         ptk.minimize(text, content_type="text")
@@ -862,6 +894,7 @@ class TestPerformance:
 # ═══════════════════════════════════════════════════════════════════════
 # 11. IDEMPOTENCY & STABILITY
 # ═══════════════════════════════════════════════════════════════════════
+
 
 class TestIdempotency:
     """Minimizing already-minimized output should be stable."""
@@ -900,6 +933,7 @@ class TestIdempotency:
 # ═══════════════════════════════════════════════════════════════════════
 # 12. CONTENT TYPE MISMATCHES
 # ═══════════════════════════════════════════════════════════════════════
+
 
 class TestContentTypeMismatch:
     """Forcing wrong content_type should degrade gracefully, not crash."""

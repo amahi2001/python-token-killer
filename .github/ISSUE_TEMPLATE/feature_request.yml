@@ -1,0 +1,41 @@
+name: Feature Request
+description: Suggest a new minimizer, compression strategy, or API improvement
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does this solve?
+      description: What are you trying to minimize, and why doesn't ptk handle it well today?
+      placeholder: "I have [type of data] that ptk currently treats as text, but it could save more tokens by..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: How should ptk handle this? New minimizer? Improvement to an existing one? New API option?
+    validations:
+      required: true
+
+  - type: textarea
+    id: example
+    attributes:
+      label: Example input/output
+      description: Show a before (original) and after (what the minimized output should look like).
+      render: python
+
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Scope
+      options:
+        - New minimizer
+        - Improvement to existing minimizer
+        - New output format
+        - API change
+        - Detection improvement
+        - Other
+    validations:
+      required: true

@@ -9,18 +9,55 @@ from ptk._base import Minimizer
 
 # ── precompiled ─────────────────────────────────────────────────────────
 
-_MULTI_SPACE = re.compile(r'[ \t]+')
-_MULTI_NEWLINE = re.compile(r'\n{3,}')
+_MULTI_SPACE = re.compile(r"[ \t]+")
+_MULTI_NEWLINE = re.compile(r"\n{3,}")
 
 # high-frequency English stopwords that add tokens but rarely carry meaning
 # in LLM context (intentionally conservative — we never want to destroy meaning)
-_STOPWORDS: frozenset[str] = frozenset({
-    "the", "a", "an", "is", "are", "was", "were", "be", "been", "being",
-    "have", "has", "had", "do", "does", "did", "will", "would", "shall",
-    "should", "may", "might", "must", "can", "could", "that", "which",
-    "who", "whom", "this", "these", "those", "am", "its", "very",
-    "just", "also", "really", "quite", "rather",
-})
+_STOPWORDS: frozenset[str] = frozenset(
+    {
+        "the",
+        "a",
+        "an",
+        "is",
+        "are",
+        "was",
+        "were",
+        "be",
+        "been",
+        "being",
+        "have",
+        "has",
+        "had",
+        "do",
+        "does",
+        "did",
+        "will",
+        "would",
+        "shall",
+        "should",
+        "may",
+        "might",
+        "must",
+        "can",
+        "could",
+        "that",
+        "which",
+        "who",
+        "whom",
+        "this",
+        "these",
+        "those",
+        "am",
+        "its",
+        "very",
+        "just",
+        "also",
+        "really",
+        "quite",
+        "rather",
+    }
+)
 
 # common long phrases → shorter equivalents
 _PHRASE_ABBREVIATIONS: tuple[tuple[str, str], ...] = (
@@ -86,7 +123,7 @@ _FILLER_PHRASES: tuple[str, ...] = (
 )
 
 _WORD_ABBREV_RE = re.compile(
-    r'\b(' + '|'.join(re.escape(w) for w in _WORD_ABBREVIATIONS) + r')\b',
+    r"\b(" + "|".join(re.escape(w) for w in _WORD_ABBREVIATIONS) + r")\b",
     re.IGNORECASE,
 )
 

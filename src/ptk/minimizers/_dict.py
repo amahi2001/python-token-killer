@@ -44,6 +44,7 @@ class DictMinimizer(Minimizer):
 
 # ── internal helpers ────────────────────────────────────────────────────
 
+
 def _flatten_single_children(d: dict[str, Any], _depth: int = 0) -> dict[str, Any]:
     """Collapse {"a": {"b": val}} → {"a.b": val} up to 4 levels."""
     if _depth > 4:
@@ -52,9 +53,7 @@ def _flatten_single_children(d: dict[str, Any], _depth: int = 0) -> dict[str, An
     for k, v in d.items():
         if isinstance(v, dict) and len(v) == 1:
             inner_k, inner_v = next(iter(v.items()))
-            flattened = _flatten_single_children(
-                {f"{k}.{inner_k}": inner_v}, _depth + 1
-            )
+            flattened = _flatten_single_children({f"{k}.{inner_k}": inner_v}, _depth + 1)
             out.update(flattened)
         else:
             out[k] = v

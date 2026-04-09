@@ -48,10 +48,7 @@ def _tabular(rows: list[dict[str, Any]]) -> str:
     """Schema-once tabular: declare fields in header, one CSV-ish row per item."""
     fields: list[str] = list(dict.fromkeys(f for row in rows for f in row))
     header = f"[{len(rows)}]{{{','.join(fields)}}}:"
-    body = "\n".join(
-        ",".join(str(row.get(f, "")) for f in fields)
-        for row in rows
-    )
+    body = "\n".join(",".join(str(row.get(f, "")) for f in fields) for row in rows)
     return f"{header}\n{body}"
 
 

@@ -16,21 +16,57 @@ class ContentType(Enum):
 
 # ── fast heuristics (order matters — first match wins) ──────────────────
 
-_CODE_MARKERS = frozenset({
-    "def ", "class ", "import ", "from ", "function ", "const ", "let ",
-    "var ", "public ", "private ", "async ", "await ", "return ",
-    "if __name__", "#!/", "package ", "func ", "fn ", "impl ",
-    "module ", "export ", "interface ", "struct ",
-})
+_CODE_MARKERS = frozenset(
+    {
+        "def ",
+        "class ",
+        "import ",
+        "from ",
+        "function ",
+        "const ",
+        "let ",
+        "var ",
+        "public ",
+        "private ",
+        "async ",
+        "await ",
+        "return ",
+        "if __name__",
+        "#!/",
+        "package ",
+        "func ",
+        "fn ",
+        "impl ",
+        "module ",
+        "export ",
+        "interface ",
+        "struct ",
+    }
+)
 
 _DIFF_PREFIXES = ("diff --git", "---", "+++", "@@")
 
-_LOG_PATTERNS = frozenset({
-    "[INFO]", "[WARN]", "[ERROR]", "[DEBUG]", "[TRACE]",
-    " INFO ", " WARN ", " ERROR ", " DEBUG ", " TRACE ",
-    "INFO:", "WARN:", "ERROR:", "DEBUG:", "TRACE:",
-    "WARNING:", "CRITICAL:",
-})
+_LOG_PATTERNS = frozenset(
+    {
+        "[INFO]",
+        "[WARN]",
+        "[ERROR]",
+        "[DEBUG]",
+        "[TRACE]",
+        " INFO ",
+        " WARN ",
+        " ERROR ",
+        " DEBUG ",
+        " TRACE ",
+        "INFO:",
+        "WARN:",
+        "ERROR:",
+        "DEBUG:",
+        "TRACE:",
+        "WARNING:",
+        "CRITICAL:",
+    }
+)
 
 
 def detect(obj: object) -> ContentType:
