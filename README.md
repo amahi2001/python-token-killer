@@ -1,12 +1,31 @@
-# ptk — Python Token Killer
+<p align="center">
+  <img src="assets/mascot.png" alt="ptk" width="200"/>
+</p>
 
-[![CI](https://github.com/amahi2001/python-token-killer/actions/workflows/ci.yml/badge.svg)](https://github.com/amahi2001/python-token-killer/actions/workflows/ci.yml)
-[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+<p align="center">
+  <strong>ptk — Python Token Killer</strong><br/>
+  <strong>Minimize LLM tokens from Python objects in one call</strong><br/>
+  Zero dependencies • Auto type detection • 322 tests
+</p>
 
-Minimize LLM tokens from Python objects in one call. Zero required dependencies. 322 tests.
+<table align="center">
+  <tr>
+    <td align="left" valign="middle">
+      <a href="https://github.com/amahi2001/python-token-killer/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/amahi2001/python-token-killer/ci.yml?branch=main&style=flat-square&label=CI" alt="CI"/></a><br/>
+      <img src="https://img.shields.io/badge/python-3.10+-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python 3.10+"/><br/>
+      <img src="https://img.shields.io/badge/mypy-strict-blue?style=flat-square" alt="mypy strict"/><br/>
+      <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-yellow?style=flat-square" alt="License"/></a>
+    </td>
+  </tr>
+</table>
 
-Inspired by [RTK (Rust Token Killer)](https://github.com/rtk-ai/rtk) — but designed as a Python library for programmatic use, not a CLI proxy.
+---
+
+## What is ptk?
+
+ptk is a **Python library** that minimizes tokens before they reach an LLM. Pass in any Python object — dict, list, code, logs, diffs, text — and get back a compressed string representation.
+
+Inspired by [RTK (Rust Token Killer)](https://github.com/rtk-ai/rtk), but designed as a library for programmatic use, not a CLI proxy.
 
 ```python
 import ptk
@@ -14,11 +33,9 @@ import ptk
 ptk.minimize({"users": [{"name": "Alice", "bio": None, "age": 30}]})
 # → '{"users":[{"name":"Alice","age":30}]}'
 
-ptk(my_dict)          # callable shorthand
+ptk(my_dict)                   # callable shorthand
 ptk(my_dict, aggressive=True)  # max compression
 ```
-
-## Install
 
 ```bash
 pip install python-token-killer
