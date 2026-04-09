@@ -10,8 +10,19 @@ from ptk._base import Minimizer
 # ── precompiled regexes (compiled once at import time) ──────────────────
 
 _BLOCK_COMMENT = re.compile(r"/\*.*?\*/", re.DOTALL)
-_INLINE_COMMENT_C = re.compile(r'(?<!["\'])//.*$', re.MULTILINE)
-_INLINE_COMMENT_PY = re.compile(r'(?<!["\'])#.*$', re.MULTILINE)
+# Match strings first (to skip), then comments. Group 1 = string (keep), Group 2 = comment (strip).
+_STRING_OR_COMMENT_C = re.compile(
+    r"""("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')"""  # group 1: quoted string
+    r"|"  # OR
+    r"(//.*$)",  # group 2: C-style inline comment
+    re.MULTILINE,
+)
+_STRING_OR_COMMENT_PY = re.compile(
+    r"""("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')"""  # group 1: quoted string
+    r"|"  # OR
+    r"(#.*$)",  # group 2: Python inline comment
+    re.MULTILINE,
+)
 _DOCSTRING = re.compile(r"(\"\"\"[\s\S]*?\"\"\"|\'\'\'[\s\S]*?\'\'\')")
 _BLANK_LINES = re.compile(r"\n{3,}")
 _TRAILING_WS = re.compile(r"[ \t]+$", re.MULTILINE)
@@ -80,9 +91,20 @@ def _has_pragma(comment: str) -> bool:
     return any(kw in comment for kw in _PRAGMA_KEYWORDS)
 
 
-def _strip_comment_if_safe(m: re.Match[str]) -> str:
-    """Remove a comment unless it contains a pragma."""
-    return m.group(0) if _has_pragma(m.group(0)) else ""
+def _strip_string_or_comment_c(m: re.Match[str]) -> str:
+    """Handle string-or-comment match: keep strings, strip comments (unless pragma)."""
+    if m.group(1):  # it's a quoted string — keep it
+        return m.group(1)
+    comment = m.group(2)  # it's a // comment
+    return comment if _has_pragma(comment) else ""
+
+
+def _strip_string_or_comment_py(m: re.Match[str]) -> str:
+    """Handle string-or-comment match: keep strings, strip comments (unless pragma)."""
+    if m.group(1):  # it's a quoted string — keep it
+        return m.group(1)
+    comment = m.group(2)  # it's a # comment
+    return comment if _has_pragma(comment) else ""
 
 
 def _strip_block_comment_if_safe(m: re.Match[str]) -> str:
@@ -111,9 +133,11 @@ def _clean(code: str) -> str:
     and collapses multi-line docstrings to first line.
     """
     out = _BLOCK_COMMENT.sub(_strip_block_comment_if_safe, code)
-    out = _INLINE_COMMENT_C.sub(_strip_comment_if_safe, out)
-    out = _INLINE_COMMENT_PY.sub(_strip_comment_if_safe, out)
+    # strip docstrings BEFORE inline comments so triple-quotes are handled first
     out = _DOCSTRING.sub(_collapse_docstring, out)
+    # use string-aware patterns to avoid stripping // or # inside string literals
+    out = _STRING_OR_COMMENT_C.sub(_strip_string_or_comment_c, out)
+    out = _STRING_OR_COMMENT_PY.sub(_strip_string_or_comment_py, out)
     out = _TRAILING_WS.sub("", out)
     out = _BLANK_LINES.sub("\n\n", out)
     return out.strip()

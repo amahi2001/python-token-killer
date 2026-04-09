@@ -98,10 +98,20 @@ _KEY_MAP: dict[str, str] = {
 
 
 def _shorten_keys(d: dict[str, Any]) -> dict[str, Any]:
-    """Recursively shorten known verbose keys."""
+    """Recursively shorten known verbose keys.
+
+    If two keys map to the same short form (e.g. 'timestamp' and 'created_at'
+    both → 'ts'), the FIRST key wins and the second is kept unshortened to
+    prevent silent data loss.
+    """
     out: dict[str, Any] = {}
+    used_shorts: set[str] = set()
     for k, v in d.items():
         short = _KEY_MAP.get(k, k)
+        # avoid collision: if short form already used, keep original key
+        if short in used_shorts and short != k:
+            short = k
+        used_shorts.add(short)
         if isinstance(v, dict):
             out[short] = _shorten_keys(v)
         elif isinstance(v, list):
@@ -115,7 +125,7 @@ def _shorten_dotted_keys(d: dict[str, Any]) -> dict[str, Any]:
     """Shorten individual segments of dotted keys (from flattening)."""
     out: dict[str, Any] = {}
     for k, v in d.items():
-        if "." in k:
+        if isinstance(k, str) and "." in k:
             parts = [_KEY_MAP.get(p, p) for p in k.split(".")]
             out[".".join(parts)] = v
         else:

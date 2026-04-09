@@ -75,8 +75,12 @@ def _dedup_list(items: list[Any]) -> str:
 
 def _sample(items: list[dict[str, Any]], n: int) -> list[dict[str, Any]]:
     """Deterministic even-spaced sampling — keeps first and last."""
+    if n <= 0:
+        return []
     if len(items) <= n:
         return items
+    if n == 1:
+        return [items[0]]
     step = (len(items) - 1) / (n - 1)
     indices = {round(i * step) for i in range(n)}
     sampled = [items[i] for i in sorted(indices)]

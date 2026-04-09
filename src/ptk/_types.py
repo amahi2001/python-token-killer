@@ -44,8 +44,6 @@ _CODE_MARKERS = frozenset(
     }
 )
 
-_DIFF_PREFIXES = ("diff --git", "---", "+++", "@@")
-
 _LOG_PATTERNS = frozenset(
     {
         "[INFO]",
@@ -69,6 +67,19 @@ _LOG_PATTERNS = frozenset(
 )
 
 
+def _looks_like_diff(head: str) -> bool:
+    """Detect unified diff format. Requires @@ hunk header + file headers or diff --git."""
+    if "@@" not in head:
+        return False
+    # strong signal: diff --git header
+    if head.startswith("diff --git") or "\ndiff --git" in head:
+        return True
+    # also accept: --- line followed by +++ line (unified diff without git header)
+    has_minus = head.startswith("--- ") or "\n--- " in head
+    has_plus = "\n+++ " in head
+    return has_minus and has_plus
+
+
 def detect(obj: object) -> ContentType:
     """Detect content type from a Python object. O(1) for non-str types."""
     if isinstance(obj, dict):
@@ -82,8 +93,8 @@ def detect(obj: object) -> ContentType:
     # ── string heuristics (check first ~2KB for speed) ──────────────
     head = obj[:2048]
 
-    # diff detection — very specific prefix patterns
-    if any(head.startswith(p) or f"\n{p}" in head for p in _DIFF_PREFIXES) and "@@" in head:
+    # diff detection — requires real unified diff structure, not just --- or @@
+    if _looks_like_diff(head):
         return ContentType.DIFF
 
     # log detection — any log-level marker in first chunk

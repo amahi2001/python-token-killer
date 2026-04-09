@@ -162,10 +162,14 @@ class TextMinimizer(Minimizer):
 
 
 def _word_abbrev_replace(m: re.Match[str]) -> str:
-    """Replace matched word with its abbreviation, preserving leading case."""
+    """Replace matched word with its abbreviation, preserving case style."""
     word = m.group(0)
     abbrev = _WORD_ABBREVIATIONS[word.lower()]
-    return abbrev.capitalize() if word[0].isupper() else abbrev
+    if word.isupper():
+        return abbrev.upper()
+    if word[0].isupper():
+        return abbrev.capitalize()
+    return abbrev
 
 
 def _remove_stopwords(text: str) -> str:
