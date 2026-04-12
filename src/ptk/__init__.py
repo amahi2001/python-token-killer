@@ -157,7 +157,7 @@ def _resolve_type(obj: Any, hint: ContentType | str | None) -> ContentType:
 def _estimate_tokens(original: str, minimized: str) -> tuple[int | None, int | None]:
     """Try tiktoken for accurate counts, fall back to len//4 heuristic."""
     try:
-        import tiktoken
+        import tiktoken  # type: ignore[import-not-found]
 
         enc = tiktoken.get_encoding("cl100k_base")
         return len(enc.encode(original)), len(enc.encode(minimized))
