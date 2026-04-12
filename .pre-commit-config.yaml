@@ -25,5 +25,6 @@ repos:
     hooks:
       - id: mypy
         args: [--strict]
-        additional_dependencies: []
+        # tiktoken is optional at runtime but mypy needs it installed to type-check
+        additional_dependencies: ["tiktoken>=0.7"]
         files: ^src/ptk/
