@@ -31,9 +31,9 @@ classifiers = [
     "Typing :: Typed",
 ]
 
+# User-facing install extras (shipped to end-users)
 [project.optional-dependencies]
 tiktoken = ["tiktoken>=0.7"]
-dev = ["pytest>=8", "tiktoken>=0.7", "ruff>=0.15", "mypy>=1.20", "pre-commit>=4"]
 
 [project.urls]
 Homepage = "https://github.com/amahi2001/python-token-killer"
@@ -41,6 +41,29 @@ Repository = "https://github.com/amahi2001/python-token-killer"
 Issues = "https://github.com/amahi2001/python-token-killer/issues"
 Changelog = "https://github.com/amahi2001/python-token-killer/blob/main/CHANGELOG.md"
 
+# ── uv dev dependency groups (PEP 735) ──────────────────────────────────────
+# Separate groups let CI install only what each job needs.
+# `dev` is included by default on `uv sync`; others are opt-in.
+[dependency-groups]
+test = ["pytest>=8"]
+lint = ["ruff>=0.15"]
+typecheck = ["mypy>=1.20"]
+bench = ["tiktoken>=0.7"]
+hooks = ["pre-commit>=4"]
+# meta-group: everything a contributor needs
+dev = [
+    { include-group = "test" },
+    { include-group = "lint" },
+    { include-group = "typecheck" },
+    { include-group = "bench" },
+    { include-group = "hooks" },
+]
+
+[tool.uv]
+# Include dev group by default on `uv sync` so `uv sync` == ready to work
+default-groups = ["dev"]
+
+# ── build ────────────────────────────────────────────────────────────────────
 [tool.hatch.version]
 path = "src/ptk/__init__.py"
 
@@ -60,13 +83,14 @@ include = [
     "pyproject.toml",
 ]
 
+# ── tooling ──────────────────────────────────────────────────────────────────
 [tool.ruff]
 target-version = "py310"
 line-length = 100
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "UP", "B", "SIM"]
-ignore = ["E501"]  # line length handled by formatter
+ignore = ["E501"]
 
 [tool.mypy]
 strict = true

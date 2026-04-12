@@ -1,0 +1,56 @@
+name: Publish
+
+# Trigger: tag a release on GitHub (e.g. v0.1.0)
+# PyPI trusted publishing (OIDC) — no tokens or secrets required.
+# Setup: https://docs.pypi.org/trusted-publishers/adding-a-publisher/
+#   Publisher: amahi2001/python-token-killer
+#   Workflow:  publish.yml
+#   Environment: pypi
+on:
+  release:
+    types: [published]
+
+jobs:
+  build:
+    name: Build distribution
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      # Build wheel + sdist without uv.sources so the artifacts are
+      # compatible with all PEP 517-compliant tools (pypa/build, pip, etc.)
+      - name: Build
+        run: uv build --no-sources
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+  publish:
+    name: Publish to PyPI
+    runs-on: ubuntu-latest
+    needs: build
+    environment: pypi
+    permissions:
+      # Required for OIDC trusted publishing — no token needed
+      id-token: write
+
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      # uv publish picks up OIDC token automatically in GitHub Actions
+      # --check-url skips re-uploading files already on PyPI
+      - name: Publish to PyPI
+        run: uv publish --check-url https://pypi.org/simple/python-token-killer/

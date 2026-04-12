@@ -8,8 +8,10 @@ dist/
 build/
 *.whl
 
-# Virtual environments
+# uv
 .venv/
+
+# Legacy virtual environments (not used with uv)
 venv/
 env/
 

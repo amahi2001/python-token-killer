@@ -1,29 +1,34 @@
-.PHONY: install test lint typecheck check bench clean
+.PHONY: install test lint typecheck check bench fix build clean
 
-# Run everything a PR needs to pass
+# Install all dev dependencies into the uv-managed venv
+install:
+	uv sync --locked --all-groups
+
+# Run everything CI runs — use this before every PR
 check: lint typecheck test
 
-install:
-	pip install -e ".[dev]"
-
 test:
-	PYTHONPATH=src python -m pytest tests/ -v --tb=short
+	uv run pytest tests/ -v --tb=short
 
 lint:
-	ruff check src/ tests/ benchmarks/ examples/
-	ruff format --check src/ tests/
+	uv run ruff check src/ tests/ benchmarks/ examples/
+	uv run ruff format --check src/ tests/
 
 typecheck:
-	mypy --strict src/ptk/
+	uv run mypy --strict src/ptk/
 
 bench:
-	python benchmarks/bench.py
+	uv run python benchmarks/bench.py
 
-# auto-fix lint issues
+# Auto-fix lint and formatting issues
 fix:
-	ruff check --fix src/ tests/ benchmarks/ examples/
-	ruff format src/ tests/
+	uv run ruff check --fix src/ tests/ benchmarks/ examples/
+	uv run ruff format src/ tests/
+
+# Build wheel + sdist (use --no-sources for PyPI compatibility)
+build:
+	uv build --no-sources
 
 clean:
-	rm -rf __pycache__ .pytest_cache .mypy_cache .ruff_cache dist build *.egg-info
+	rm -rf dist/ __pycache__ .pytest_cache .mypy_cache .ruff_cache *.egg-info
 	find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true

@@ -34,18 +34,23 @@ ptk.minimize(obj) → _types.detect(obj) → _ROUTER[type].run(obj) → MinResul
 ## Commands
 
 ```bash
-make check      # lint + typecheck + tests — run before every commit
-make test       # tests only (322 tests, <0.5s)
-make lint       # ruff check + format check
-make typecheck  # mypy --strict
-make bench      # benchmarks with tiktoken
-make fix        # auto-fix lint/formatting
+uv sync                  # install all dev deps (run once after clone)
+make check               # lint + typecheck + tests — run before every commit
+make test                # tests only (361 tests, <0.7s)
+make lint                # ruff check + format check
+make typecheck           # mypy --strict
+make bench               # benchmarks with tiktoken
+make fix                 # auto-fix lint/formatting
+make build               # build wheel + sdist
 ```
+
+All Makefile commands use `uv run` — no venv activation needed.
 
 ## Test Structure
 
-- `tests/test_ptk.py` — 153 feature tests covering all minimizers, detection, helpers, API
-- `tests/test_adversarial.py` — 169 adversarial tests: type chaos, circular refs, deep nesting, unicode, regex safety, concurrency, mutation, performance, idempotency, content type mismatch
+- `tests/test_ptk.py` — 153 feature tests: all minimizers, detection, helpers, API
+- `tests/test_adversarial.py` — 169 adversarial tests: type chaos, circular refs, deep nesting, unicode, regex safety, concurrency, mutation, performance, idempotency
+- `tests/test_real_world.py` — 39 real-world tool output tests: pytest/cargo/go test, ruff/eslint lint, git, docker, build errors, pipeline simulations
 
 ## Adding a Minimizer
 

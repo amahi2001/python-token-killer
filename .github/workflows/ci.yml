@@ -11,32 +11,32 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # ── Fast checks (lint + typecheck) ──────────────────────────────
+  # ── Lint & typecheck (single Python version, fast) ──────────────────────
   quality:
     name: Lint & Typecheck
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - uses: astral-sh/setup-uv@v5
-
-      - uses: actions/setup-python@v5
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
         with:
-          python-version: "3.12"
+          enable-cache: true
 
+      # setup-uv respects .python-version — no actions/setup-python needed
       - name: Install dependencies
-        run: uv pip install --system -e ".[dev]"
+        run: uv sync --locked --only-group lint --only-group typecheck
 
       - name: Ruff check
-        run: ruff check src/ tests/ benchmarks/ examples/
+        run: uv run ruff check src/ tests/ benchmarks/ examples/
 
       - name: Ruff format
-        run: ruff format --check src/ tests/
+        run: uv run ruff format --check src/ tests/
 
       - name: Mypy
-        run: mypy --strict src/ptk/
+        run: uv run mypy --strict src/ptk/
 
-  # ── Tests across Python versions ────────────────────────────────
+  # ── Tests across Python versions ─────────────────────────────────────────
   test:
     name: Test (Python ${{ matrix.python-version }})
     runs-on: ubuntu-latest
@@ -48,30 +48,38 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: astral-sh/setup-uv@v5
-
-      - uses: actions/setup-python@v5
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
         with:
+          enable-cache: true
+          # Overrides .python-version for matrix builds
           python-version: ${{ matrix.python-version }}
 
       - name: Install dependencies
-        run: uv pip install --system -e ".[dev]"
+        run: uv sync --locked --only-group test
 
       - name: Run tests
-        run: python -m pytest tests/ -v --tb=short
+        run: uv run pytest tests/ -v --tb=short
 
-      - name: Smoke test import
-        run: python -c "import ptk; print(ptk.__version__); print(ptk.minimize({'test': True, 'empty': None}))"
+      - name: Smoke test
+        run: uv run python -c "import ptk; print(ptk.__version__); print(ptk.minimize({'test': True, 'empty': None}))"
 
-  # ── Pre-commit hooks (backstop for contributors who skip local hooks) ──
+      - name: Prune uv cache
+        run: uv cache prune --ci
+
+  # ── Pre-commit hooks (backstop for contributors who skip local install) ──
   pre-commit:
     name: Pre-commit
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
         with:
-          python-version: "3.12"
+          enable-cache: true
+
+      - name: Install pre-commit
+        run: uv sync --locked --only-group hooks
 
       - uses: pre-commit/action@v3.0.1
