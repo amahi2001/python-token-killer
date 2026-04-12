@@ -62,7 +62,12 @@ jobs:
         run: uv run pytest tests/ -v --tb=short
 
       - name: Smoke test
-        run: uv run python -c "import ptk; print(ptk.__version__); print(ptk.minimize({'test': True, 'empty': None}))"
+        run: |
+          uv run python -c "
+          import ptk
+          print(ptk.__version__)
+          print(ptk.minimize({'key': 'value'}))
+          "
 
       - name: Prune uv cache
         run: uv cache prune --ci
