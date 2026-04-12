@@ -13,6 +13,10 @@ jobs:
   analyze:
     name: Analyze Python
     runs-on: ubuntu-latest
+    # CodeQL code scanning is free for public repos only.
+    # continue-on-error keeps CI green while the repo is private;
+    # remove this line after going public.
+    continue-on-error: true
     permissions:
       security-events: write
       contents: read
