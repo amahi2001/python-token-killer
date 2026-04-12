@@ -10,6 +10,15 @@ check: lint typecheck test
 test:
 	uv run pytest tests/ -v --tb=short
 
+test-unit:
+	uv run pytest tests/unit/ -v --tb=short
+
+test-adversarial:
+	uv run pytest tests/adversarial/ -v --tb=short
+
+test-real-world:
+	uv run pytest tests/real_world/ -v --tb=short
+
 lint:
 	uv run ruff check src/ tests/ benchmarks/ examples/
 	uv run ruff format --check src/ tests/
