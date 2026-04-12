@@ -44,7 +44,7 @@ class TestAPI:
             ptk.minimize("text", content_type="nonexistent")
 
     def test_version(self):
-        assert ptk.__version__ == "0.1.0"
+        assert ptk.__version__ == "0.1.1"
 
     def test_non_string_non_dict_non_list(self):
         assert isinstance(ptk.minimize(42), str)

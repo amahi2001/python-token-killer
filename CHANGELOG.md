@@ -15,6 +15,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.1.1] - 2026-04-12
+
+### Fixed
+
+- Silent data loss in `_shorten_keys` when two keys map to the same abbreviation (e.g. `timestamp` and `created_at` both → `ts`). Second key now keeps its original name.
+- `CodeMinimizer` corrupted URLs inside string literals (`https://` was stripped by the `//` comment regex). Replaced with a string-aware regex.
+- `_shorten_dotted_keys` crashed with `TypeError` on non-string dict keys (`"."\ in 1`). Fixed with `isinstance(k, str)` guard.
+- `DiffMinimizer` silently folded `\ No newline at end of file` marker in large diffs.
+- Markdown with `---` horizontal rule + `@@` mention was misdetected as diff.
+- `_sample(n=1)` caused `ZeroDivisionError`.
+- ALL CAPS words were abbreviated with wrong case (`IMPLEMENTATION` → `Impl` instead of `IMPL`).
+
+### Changed
+
+- Test suite refactored from 3 monolithic files into 19 focused modules under `tests/unit/`, `tests/adversarial/`, `tests/real_world/`.
+- Examples replaced with runnable, output-showing demos: `rag_pipeline.py`, `langgraph_agent.py`, `log_triage.py`.
+- README restructured to lead with before/after comparison and cost math.
+- CI now uses `uv sync --locked --only-group <group>` per job for minimal installs.
+- Dependabot switched from `pip` to `uv` ecosystem to track `uv.lock` and `[dependency-groups]`.
+
+### Added
+
+- `SECURITY.md` with private disclosure instructions and scope notes.
+- `make test-unit`, `make test-adversarial`, `make test-real-world` targets.
+
+---
+
 ## [0.1.0] - 2026-04-09
 
 Initial public release.
