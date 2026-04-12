@@ -39,9 +39,11 @@ ptk(my_dict, aggressive=True)  # max compression
 
 ```bash
 pip install python-token-killer
+# or
+uv add python-token-killer
 ```
 
-Optional: `pip install python-token-killer[tiktoken]` for exact token counting.
+Optional: `pip install python-token-killer[tiktoken]` or `uv add python-token-killer[tiktoken]` for exact token counting.
 
 ## Benchmarks
 
@@ -207,9 +209,9 @@ clean = ptk.minimize(response)  # strip nulls, compact JSON
 
 ```bash
 git clone https://github.com/amahi2001/python-token-killer.git
-cd ptk
-pip install -e ".[dev]"
-python -m pytest tests/ -v
+cd python-token-killer
+uv sync          # installs all dev dependencies, creates .venv automatically
+make check       # lint + typecheck + 361 tests
 ```
 
 ## License
