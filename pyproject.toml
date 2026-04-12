@@ -4,20 +4,31 @@ build-backend = "hatchling.build"
 
 [project]
 name = "python-token-killer"
-version = "0.1.0"
+dynamic = ["version"]
 description = "Minimize LLM tokens from Python objects — dicts, code, logs, diffs, and more."
 readme = "README.md"
-license = "MIT"
+license = { file = "LICENSE" }
 requires-python = ">=3.10"
-authors = [{ name = "ptk contributors" }]
-keywords = ["llm", "tokens", "compression", "agents", "langchain", "claude"]
+authors = [{ name = "amahi2001", email = "amahi2001@gmail.com" }]
+keywords = [
+    "llm", "tokens", "compression", "context-window",
+    "agents", "langchain", "langgraph", "claude", "openai",
+    "rag", "nlp",
+]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
-    "Topic :: Software Development :: Libraries",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Libraries :: Python Modules",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Text Processing",
+    "Typing :: Typed",
 ]
 
 [project.optional-dependencies]
@@ -30,8 +41,24 @@ Repository = "https://github.com/amahi2001/python-token-killer"
 Issues = "https://github.com/amahi2001/python-token-killer/issues"
 Changelog = "https://github.com/amahi2001/python-token-killer/blob/main/CHANGELOG.md"
 
+[tool.hatch.version]
+path = "src/ptk/__init__.py"
+
 [tool.hatch.build.targets.wheel]
 packages = ["src/ptk"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "src/",
+    "tests/",
+    "benchmarks/",
+    "examples/",
+    "LICENSE",
+    "README.md",
+    "CHANGELOG.md",
+    "CONTRIBUTING.md",
+    "pyproject.toml",
+]
 
 [tool.ruff]
 target-version = "py310"

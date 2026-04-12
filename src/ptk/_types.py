@@ -46,6 +46,7 @@ _CODE_MARKERS = frozenset(
 
 _LOG_PATTERNS = frozenset(
     {
+        # structured log levels
         "[INFO]",
         "[WARN]",
         "[ERROR]",
@@ -63,6 +64,18 @@ _LOG_PATTERNS = frozenset(
         "TRACE:",
         "WARNING:",
         "CRITICAL:",
+        # test runner output (pytest, cargo test, go test, jest)
+        "PASSED",
+        "FAILED",
+        "ERRORS",
+        "--- PASS:",
+        "--- FAIL:",  # go test
+        "test result: ",  # cargo test
+        " passed",
+        " failed",  # pytest summary
+        "✓",
+        "✗",
+        "✕",  # jest / vitest
     }
 )
 
@@ -97,7 +110,9 @@ def detect(obj: object) -> ContentType:
     if _looks_like_diff(head):
         return ContentType.DIFF
 
-    # log detection — any log-level marker in first chunk
+    # log detection runs BEFORE code — log patterns are more specific.
+    # e.g. pytest output contains 'def test_foo():' which would trigger
+    # code detection, but the PASSED/FAILED markers identify it as log first.
     if any(m in head for m in _LOG_PATTERNS):
         return ContentType.LOG
 

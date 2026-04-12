@@ -22,6 +22,18 @@ _STACKTRACE_RE = re.compile(
     r"\w+Error:|\w+Exception:|\w+Warning:|at \S+\.\S+\()",
     re.MULTILINE,
 )
+# test-runner pass markers — never kept as context in errors_only mode
+_PASS_MARKERS: frozenset[str] = frozenset(
+    {
+        "PASSED",
+        " PASS",
+        "--- PASS",
+        "... ok",
+        " ok",
+        "test result: ok",
+        "✓",
+    }
+)
 
 
 class LogMinimizer(Minimizer):
@@ -52,16 +64,31 @@ class LogMinimizer(Minimizer):
 
 
 def _errors_only(text: str) -> str:
-    """Keep error/warning lines, stack traces, 'failed' keyword lines, + context."""
+    """Keep error/warning lines, stack traces, 'failed' keyword lines, + context.
+
+    Pass-marker lines (PASSED, --- PASS, ... ok, etc.) are never kept even
+    as context around errors — they are pure noise in an error report.
+    """
     lines = text.split("\n")
     keep: set[int] = set()
     for i, line in enumerate(lines):
+        ll = line.lower()
         is_important = (
-            _LOG_LEVEL.search(line) or _STACKTRACE_RE.match(line) or "failed" in line.lower()
+            _LOG_LEVEL.search(line)
+            or _STACKTRACE_RE.match(line)
+            or "failed" in ll
+            or "fail:" in ll  # go test: --- FAIL: TestName
+            or " fail " in ll  # standalone FAIL line
+            or "error" in ll  # build errors, compiler output
+            or "panicked" in ll  # rust panic
+            or "assertion" in ll  # assertion errors
         )
         if is_important:
-            # keep the important line + 1 line of context before/after
-            keep.update(range(max(0, i - 1), min(len(lines), i + 2)))
+            # keep the important line + 1 line of context before/after,
+            # but exclude pure pass-marker lines from the context window
+            for j in range(max(0, i - 1), min(len(lines), i + 2)):
+                if not any(marker in lines[j] for marker in _PASS_MARKERS):
+                    keep.add(j)
     if not keep:
         return text  # no errors found — return deduped version
     return "\n".join(lines[i] for i in sorted(keep))
