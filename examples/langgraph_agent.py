@@ -22,6 +22,7 @@ import ptk
 
 # ── Simulated tool outputs (realistic shapes from real APIs) ─────────────────
 
+
 def tool_search_users(query: str) -> dict:
     """Simulates a user search API response."""
     return {
@@ -62,19 +63,23 @@ def tool_search_users(query: str) -> dict:
 
 def tool_get_logs(service: str) -> str:
     """Simulates fetching recent service logs."""
-    return "\n".join([
-        f"2024-08-01T10:00:{i:02d}Z [INFO] Health check passed" if i % 3 != 0
-        else f"2024-08-01T10:00:{i:02d}Z [DEBUG] Processing request #{i}"
-        for i in range(50)
-    ] + [
-        "2024-08-01T10:00:51Z [ERROR] Connection timeout to redis:6379",
-        "2024-08-01T10:00:51Z [WARN] Retrying (attempt 1/3)",
-        "2024-08-01T10:00:52Z [ERROR] Failed after 3 retries — using fallback",
-        "Traceback (most recent call last):",
-        '  File "/app/cache.py", line 42, in connect',
-        "    raise ConnectionError('redis:6379 unreachable')",
-        "ConnectionError: redis:6379 unreachable",
-    ])
+    return "\n".join(
+        [
+            f"2024-08-01T10:00:{i:02d}Z [INFO] Health check passed"
+            if i % 3 != 0
+            else f"2024-08-01T10:00:{i:02d}Z [DEBUG] Processing request #{i}"
+            for i in range(50)
+        ]
+        + [
+            "2024-08-01T10:00:51Z [ERROR] Connection timeout to redis:6379",
+            "2024-08-01T10:00:51Z [WARN] Retrying (attempt 1/3)",
+            "2024-08-01T10:00:52Z [ERROR] Failed after 3 retries — using fallback",
+            "Traceback (most recent call last):",
+            '  File "/app/cache.py", line 42, in connect',
+            "    raise ConnectionError('redis:6379 unreachable')",
+            "ConnectionError: redis:6379 unreachable",
+        ]
+    )
 
 
 def tool_get_code(module: str) -> str:
@@ -179,6 +184,7 @@ class AuthManager:
 
 # ── Agent loop ───────────────────────────────────────────────────────────────
 
+
 def simulate_agent_step(step_name: str, tool_fn, *args) -> tuple[str, str]:
     """Run a tool, return (raw_output, compressed_output)."""
     raw = tool_fn(*args)
@@ -191,6 +197,7 @@ def simulate_agent_step(step_name: str, tool_fn, *args) -> tuple[str, str]:
 def token_count(text: str) -> int:
     try:
         import tiktoken
+
         return len(tiktoken.get_encoding("cl100k_base").encode(text))
     except ImportError:
         return len(text) // 4
@@ -206,9 +213,9 @@ def main() -> None:
     total_compressed = 0
 
     steps = [
-        ("1. Search users",      tool_search_users, "engineering department"),
-        ("2. Fetch service logs", tool_get_logs,     "api-gateway"),
-        ("3. Read source code",   tool_get_code,     "auth.py"),
+        ("1. Search users", tool_search_users, "engineering department"),
+        ("2. Fetch service logs", tool_get_logs, "api-gateway"),
+        ("3. Read source code", tool_get_code, "auth.py"),
     ]
 
     context_window: list[str] = []
@@ -232,8 +239,10 @@ def main() -> None:
 
     print()
     print(f"  Cumulative context window: {naive_context:,} → {context_tokens:,} tokens")
-    print(f"  Total saved: {naive_context - context_tokens:,} tokens "
-          f"({round((1 - context_tokens/naive_context)*100,1)}%)")
+    print(
+        f"  Total saved: {naive_context - context_tokens:,} tokens "
+        f"({round((1 - context_tokens / naive_context) * 100, 1)}%)"
+    )
 
     # At scale
     cost_raw = naive_context / 1_000_000 * 2.50

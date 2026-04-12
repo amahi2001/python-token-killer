@@ -160,8 +160,7 @@ class AuthManager:
         if attempts >= self.max_attempts:
             logger.warning("Rate limit exceeded for user: %s", username)
             raise RateLimitError(
-                f"Too many failed login attempts for {username}. "
-                f"Please try again later."
+                f"Too many failed login attempts for {username}. Please try again later."
             )
 
         # Look up user
@@ -201,9 +200,7 @@ class AuthManager:
             self.cache.delete(f"session:{token}")
 
         # Remove from database
-        result = self.db.execute(
-            "DELETE FROM sessions WHERE token = ?", (token,)
-        )
+        result = self.db.execute("DELETE FROM sessions WHERE token = ?", (token,))
         return result.rowcount > 0
 
     def get_session(self, token: str) -> Session | None:
@@ -226,9 +223,7 @@ class AuthManager:
                 self.cache.delete(f"session:{token}")
 
         # Fall back to database
-        row = self.db.query_one(
-            "SELECT * FROM sessions WHERE token = ?", (token,)
-        )
+        row = self.db.query_one("SELECT * FROM sessions WHERE token = ?", (token,))
         if row is None:
             return None
 
@@ -275,27 +270,21 @@ class AuthManager:
 
     def _find_user(self, username: str) -> User | None:
         """Look up a user by username."""
-        row = self.db.query_one(
-            "SELECT * FROM users WHERE username = ?", (username,)
-        )
+        row = self.db.query_one("SELECT * FROM users WHERE username = ?", (username,))
         if row is None:
             return None
         return self._row_to_user(row)
 
     def _find_user_by_id(self, user_id: int) -> User | None:
         """Look up a user by ID."""
-        row = self.db.query_one(
-            "SELECT * FROM users WHERE id = ?", (user_id,)
-        )
+        row = self.db.query_one("SELECT * FROM users WHERE id = ?", (user_id,))
         if row is None:
             return None
         return self._row_to_user(row)
 
     def _verify_password(self, password: str, user: User) -> bool:
         """Verify a password against the stored hash."""
-        stored_hash = self.db.query_one(
-            "SELECT password_hash FROM users WHERE id = ?", (user.id,)
-        )
+        stored_hash = self.db.query_one("SELECT password_hash FROM users WHERE id = ?", (user.id,))
         if stored_hash is None:
             return False
         return hashlib.sha256(password.encode()).hexdigest() == stored_hash["password_hash"]
@@ -316,8 +305,14 @@ class AuthManager:
         self.db.execute(
             "INSERT INTO sessions (id, user_id, token, created_at, expires_at, ip_address) "
             "VALUES (?, ?, ?, ?, ?, ?)",
-            (session.id, session.user_id, session.token,
-             session.created_at, session.expires_at, session.ip_address),
+            (
+                session.id,
+                session.user_id,
+                session.token,
+                session.created_at,
+                session.expires_at,
+                session.ip_address,
+            ),
         )
 
         # Store in cache
@@ -370,14 +365,16 @@ class AuthManager:
     @staticmethod
     def _serialize_session(session: Session) -> str:
         """Serialize a session for cache storage."""
-        return json.dumps({
-            "id": session.id,
-            "user_id": session.user_id,
-            "token": session.token,
-            "created_at": session.created_at.isoformat(),
-            "expires_at": session.expires_at.isoformat(),
-            "ip_address": session.ip_address,
-        })
+        return json.dumps(
+            {
+                "id": session.id,
+                "user_id": session.user_id,
+                "token": session.token,
+                "created_at": session.created_at.isoformat(),
+                "expires_at": session.expires_at.isoformat(),
+                "ip_address": session.ip_address,
+            }
+        )
 
     @staticmethod
     def _deserialize_session(data: str) -> Session:

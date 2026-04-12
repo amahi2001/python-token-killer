@@ -31,8 +31,12 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="ptk — minimize tokens from files")
     parser.add_argument("file", nargs="?", help="File to minimize")
     parser.add_argument("--stdin", action="store_true", help="Read from stdin")
-    parser.add_argument("--type", choices=["dict", "list", "code", "log", "diff", "text"],
-                        default=None, help="Force content type (default: auto-detect)")
+    parser.add_argument(
+        "--type",
+        choices=["dict", "list", "code", "log", "diff", "text"],
+        default=None,
+        help="Force content type (default: auto-detect)",
+    )
     parser.add_argument("--aggressive", "-a", action="store_true", help="Max compression")
     parser.add_argument("--stats", "-s", action="store_true", help="Print stats to stderr")
     args = parser.parse_args()

@@ -20,6 +20,7 @@ import ptk
 
 # ── Simulated CI log (realistic 10,000-line output condensed) ────────────────
 
+
 def make_ci_log() -> str:
     lines = []
 
@@ -107,6 +108,7 @@ def make_ci_log() -> str:
 def token_count(text: str) -> int:
     try:
         import tiktoken
+
         return len(tiktoken.get_encoding("cl100k_base").encode(text))
     except ImportError:
         return len(text) // 4

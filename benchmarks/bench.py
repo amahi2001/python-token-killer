@@ -27,7 +27,9 @@ def count_tokens(text: str) -> int:
 
 def bench(name: str, obj: object, *, content_type: str | None = None) -> dict:
     """Run a single benchmark and return results."""
-    original_str = json.dumps(obj, indent=2, default=str) if isinstance(obj, (dict, list)) else str(obj)
+    original_str = (
+        json.dumps(obj, indent=2, default=str) if isinstance(obj, (dict, list)) else str(obj)
+    )
     orig_tokens = count_tokens(original_str)
 
     # default mode
@@ -46,17 +48,23 @@ def bench(name: str, obj: object, *, content_type: str | None = None) -> dict:
         "name": name,
         "original_tokens": orig_tokens,
         "default_tokens": default_tokens,
-        "default_savings_pct": round((1 - default_tokens / orig_tokens) * 100, 1) if orig_tokens else 0,
+        "default_savings_pct": round((1 - default_tokens / orig_tokens) * 100, 1)
+        if orig_tokens
+        else 0,
         "default_us": round(default_ns / 1000),
         "aggressive_tokens": aggro_tokens,
-        "aggressive_savings_pct": round((1 - aggro_tokens / orig_tokens) * 100, 1) if orig_tokens else 0,
+        "aggressive_savings_pct": round((1 - aggro_tokens / orig_tokens) * 100, 1)
+        if orig_tokens
+        else 0,
         "aggressive_us": round(aggro_ns / 1000),
     }
 
 
 def main() -> None:
     print(f"ptk v{ptk.__version__} benchmark (tiktoken cl100k_base)\n")
-    print(f"{'Benchmark':<30} {'Original':>8} {'Default':>8} {'Saved':>7} {'Aggro':>8} {'Saved':>7} {'Time':>8}")
+    print(
+        f"{'Benchmark':<30} {'Original':>8} {'Default':>8} {'Saved':>7} {'Aggro':>8} {'Saved':>7} {'Time':>8}"
+    )
     print("-" * 92)
 
     results: list[dict] = []
@@ -84,9 +92,14 @@ def main() -> None:
 
     # 5. List of records
     records = [
-        {"id": i, "name": f"user_{i}", "email": f"u{i}@company.com",
-         "active": i % 3 != 0, "role": ["admin", "member", "viewer"][i % 3],
-         "last_login": None if i % 4 == 0 else f"2024-08-0{(i%9)+1}"}
+        {
+            "id": i,
+            "name": f"user_{i}",
+            "email": f"u{i}@company.com",
+            "active": i % 3 != 0,
+            "role": ["admin", "member", "viewer"][i % 3],
+            "last_login": None if i % 4 == 0 else f"2024-08-0{(i % 9) + 1}",
+        }
         for i in range(50)
     ]
     results.append(bench("50 user records (list)", records))

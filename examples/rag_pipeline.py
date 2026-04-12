@@ -138,6 +138,7 @@ impact, notify #incidents in Slack immediately.
 def build_context_naive(docs: list[dict]) -> str:
     """Naive approach: dump everything as-is."""
     import json
+
     return json.dumps(docs, indent=2)
 
 
@@ -151,9 +152,7 @@ def build_context_with_ptk(docs: list[dict]) -> str:
         meta = ptk.minimize(doc["metadata"])
 
         chunks.append(
-            f"[Source: {doc['source']} | Relevance: {doc['score']:.0%}]\n"
-            f"{compressed}\n"
-            f"Meta: {meta}"
+            f"[Source: {doc['source']} | Relevance: {doc['score']:.0%}]\n{compressed}\nMeta: {meta}"
         )
     return "\n\n---\n\n".join(chunks)
 
@@ -161,10 +160,13 @@ def build_context_with_ptk(docs: list[dict]) -> str:
 def main() -> None:
     try:
         import tiktoken
+
         enc = tiktoken.get_encoding("cl100k_base")
+
         def count(text: str) -> int:
             return len(enc.encode(text))
     except ImportError:
+
         def count(text: str) -> int:  # type: ignore[misc]
             return len(text) // 4  # ~4 chars/token heuristic
 
