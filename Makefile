@@ -20,10 +20,10 @@ typecheck:
 bench:
 	uv run python benchmarks/bench.py
 
-# Auto-fix lint and formatting issues
+# Auto-fix lint and formatting issues (all dirs — matches pre-commit scope)
 fix:
 	uv run ruff check --fix src/ tests/ benchmarks/ examples/
-	uv run ruff format src/ tests/
+	uv run ruff format src/ tests/ benchmarks/ examples/
 
 # Build wheel + sdist (use --no-sources for PyPI compatibility)
 build:
