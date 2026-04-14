@@ -48,3 +48,8 @@ class TestAPI:
 
     def test_non_string_non_dict_non_list(self):
         assert isinstance(ptk.minimize(42), str)
+
+    def test_stats_with_strip_nulls_false(self):
+        s = ptk.stats({"name": "Alice", "bio": None}, strip_nulls=False)
+        assert "bio" in s["output"]
+        assert s["savings_pct"] < ptk.stats({"name": "Alice", "bio": None})["savings_pct"]

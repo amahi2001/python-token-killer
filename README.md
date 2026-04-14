@@ -99,13 +99,13 @@ Run yourself: `python benchmarks/bench.py`
 
 `ptk` detects your input type and routes to the right compression strategy automatically:
 
-| Input | What happens | Saves |
-|---|---|---|
-| `dict` / `list` | Strips `null`, `""`, `[]`, `{}` recursively. Tabular encoding for uniform arrays. | 40–70% |
-| Code | Strips comments (preserving `# noqa`, `# type: ignore`, `TODO`). Collapses docstrings. Extracts signatures. | 25–89% |
-| Logs | Collapses duplicate lines with counts. Filters to errors + stack traces only. | 60–90% |
-| Diffs | Folds unchanged context. Strips git noise (`index`, `old mode`). | 50–75% |
-| Text | Abbreviates `implementation→impl`, `configuration→config`. Removes filler phrases. | 10–30% |
+| Input           | What happens                                                                                                | Saves  |
+| --------------- | ----------------------------------------------------------------------------------------------------------- | ------ |
+| `dict` / `list` | Strips `null`, `""`, `[]`, `{}` recursively. Tabular encoding for uniform arrays.                           | 40–70% |
+| Code            | Strips comments (preserving `# noqa`, `# type: ignore`, `TODO`). Collapses docstrings. Extracts signatures. | 25–89% |
+| Logs            | Collapses duplicate lines with counts. Filters to errors + stack traces only.                               | 60–90% |
+| Diffs           | Folds unchanged context. Strips git noise (`index`, `old mode`).                                            | 50–75% |
+| Text            | Abbreviates `implementation→impl`, `configuration→config`. Removes filler phrases.                          | 10–30% |
 
 ---
 
@@ -140,6 +140,10 @@ ptk.stats(response)
 
 # Callable shorthand
 ptk(response)  # same as ptk.minimize(response)
+
+# Preserve nulls when they carry meaning
+ptk.minimize({"status": "pending", "error": None}, strip_nulls=False)
+# → {"status":"pending","error":null}
 ```
 
 ---
@@ -219,12 +223,12 @@ The module itself is callable. `ptk(x)` is identical to `ptk.minimize(x)`.
 
 ## Comparison
 
-| Tool | Type | What it does |
-|---|---|---|
-| **ptk** | Python library | One call, any Python object, zero deps |
-| [RTK](https://github.com/rtk-ai/rtk) | Rust CLI | Compresses shell command output for coding agents |
-| [claw-compactor](https://github.com/open-compress/claw-compactor) | Python library | 14-stage AST-aware pipeline, heavier setup |
-| [LLMLingua](https://github.com/microsoft/LLMLingua) | Python library | Neural compression, requires GPU |
+| Tool                                                              | Type           | What it does                                      |
+| ----------------------------------------------------------------- | -------------- | ------------------------------------------------- |
+| **ptk**                                                           | Python library | One call, any Python object, zero deps            |
+| [RTK](https://github.com/rtk-ai/rtk)                              | Rust CLI       | Compresses shell command output for coding agents |
+| [claw-compactor](https://github.com/open-compress/claw-compactor) | Python library | 14-stage AST-aware pipeline, heavier setup        |
+| [LLMLingua](https://github.com/microsoft/LLMLingua)               | Python library | Neural compression, requires GPU                  |
 
 ---
 

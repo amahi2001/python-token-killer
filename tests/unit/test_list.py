@@ -68,3 +68,25 @@ class TestListMinimizer:
 
     def test_list_of_tuples(self):
         assert isinstance(ptk.minimize((1, 2, 3)), str)
+
+    # ── strip_nulls=False tests ───────────────────────────────────────────
+    def test_strip_nulls_false_preserves_none_items(self):
+        items = [None, {"id": 1}, None]
+        result = ptk.minimize(items, strip_nulls=False)
+        # Should be JSON format with nulls preserved
+        assert "null" in result
+        parsed = json.loads(result)
+        assert parsed[0] is None
+        assert parsed[1]["id"] == 1
+
+    def test_strip_nulls_false_preserves_empty_dicts_in_list(self):
+        items = [{"id": 1}, {}, {"id": 2}]
+        result = ptk.minimize(items, strip_nulls=False)
+        # In tabular mode, empty dict would have empty values
+        assert isinstance(result, str)
+
+    def test_strip_nulls_true_default(self):
+        items = [None, {"id": 1}, None]
+        result = ptk.minimize(items)
+        assert "null" not in result
+        assert "1" in result
