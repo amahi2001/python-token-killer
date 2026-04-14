@@ -8,6 +8,7 @@ updates:
     schedule:
       interval: "weekly"
       day: "monday"
+    rebase-strategy: "auto"
     labels: ["dependencies"]
     commit-message:
       prefix: "deps"
@@ -19,6 +20,7 @@ updates:
     schedule:
       interval: "weekly"
       day: "monday"
+    rebase-strategy: "auto"
     labels: ["ci"]
     commit-message:
       prefix: "ci"
