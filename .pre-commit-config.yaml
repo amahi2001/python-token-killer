@@ -28,3 +28,9 @@ repos:
         # tiktoken is optional at runtime but mypy needs it installed to type-check
         additional_dependencies: ["tiktoken>=0.7"]
         files: ^src/ptk/
+
+  # Gitleaks (secret scanning)
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.24.2
+    hooks:
+      - id: gitleaks
