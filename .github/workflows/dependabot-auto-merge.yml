@@ -1,0 +1,45 @@
+name: Dependabot Auto-Merge
+
+on: pull_request
+
+permissions: {}
+
+jobs:
+  # ── Wait for CI to pass before considering any merge ────────────────────────
+  auto-merge:
+    name: Auto-merge Dependabot PR
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    if: github.event.pull_request.user.login == 'dependabot[bot]'
+
+    steps:
+      - name: Fetch Dependabot metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@v2
+        with:
+          github-token: "${{ secrets.GITHUB_TOKEN }}"
+
+      # Auto-merge patch + minor bumps for GitHub Actions (low risk)
+      - name: Auto-merge GitHub Actions updates (patch + minor)
+        if: |
+          steps.metadata.outputs.package-ecosystem == 'github_actions' &&
+          (
+            steps.metadata.outputs.update-type == 'version-update:semver-patch' ||
+            steps.metadata.outputs.update-type == 'version-update:semver-minor'
+          )
+        run: gh pr merge --auto --squash "$PR_URL"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Auto-merge patch-only bumps for uv/Python deps (conservative)
+      - name: Auto-merge uv dependency patch updates
+        if: |
+          steps.metadata.outputs.package-ecosystem == 'uv' &&
+          steps.metadata.outputs.update-type == 'version-update:semver-patch'
+        run: gh pr merge --auto --squash "$PR_URL"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
