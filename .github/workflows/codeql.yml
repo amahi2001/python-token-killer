@@ -9,6 +9,8 @@ on:
     # Run weekly on Monday at 06:00 UTC (catches new vulnerability patterns)
     - cron: "0 6 * * 1"
 
+permissions: read-all
+
 jobs:
   analyze:
     name: Analyze Python
