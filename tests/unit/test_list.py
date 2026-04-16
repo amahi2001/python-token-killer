@@ -73,11 +73,10 @@ class TestListMinimizer:
     def test_strip_nulls_false_preserves_none_items(self):
         items = [None, {"id": 1}, None]
         result = ptk.minimize(items, strip_nulls=False)
-        # Should be JSON format with nulls preserved
+        # dedup format: mixed types produce line-based output with counts
         assert "null" in result
-        parsed = json.loads(result)
-        assert parsed[0] is None
-        assert parsed[1]["id"] == 1
+        assert "(x2)" in result  # two None items collapsed
+        assert '"id":1' in result
 
     def test_strip_nulls_false_preserves_empty_dicts_in_list(self):
         items = [{"id": 1}, {}, {"id": 2}]
