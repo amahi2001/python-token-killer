@@ -15,6 +15,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.2.0] - 2026-04-16
+
+### Added
+
+- `strip_nulls` parameter on `minimize()` and `stats()`. Pass `strip_nulls=False` to preserve `None`, `""`, `[]`, `{}` values when the null-vs-absent distinction matters. Default remains `True`.
+
+### Changed
+
+- README rewritten for clarity and tighter messaging.
+- Makefile `release` target uses macOS-compatible `sed -i ''` syntax.
+
+### Fixed
+
+- Test assertion for list dedup format with `strip_nulls=False` (mixed-type lists use line-based dedup, not JSON).
+
+---
+
 ## [0.1.1] - 2026-04-12
 
 ### Fixed
@@ -66,14 +83,14 @@ Initial public release.
 
 Real token counts via tiktoken (`cl100k_base`):
 
-| Benchmark | Original | Default | Saved | Aggressive | Saved |
-|---|---|---|---|---|---|
-| API response (JSON) | 1,450 | 792 | 45.4% | 782 | 46.1% |
-| Python module (code) | 2,734 | 2,113 | 22.7% | 309 | 88.7% |
-| Server log (58 lines) | 1,389 | 1,388 | 0.1% | 231 | 83.4% |
-| 50 user records (list) | 2,774 | 922 | 66.8% | 922 | 66.8% |
-| Verbose paragraph (text) | 101 | 96 | 5.0% | 74 | 26.7% |
-| **Total** | **11,182** | **7,424** | **33.6%** | **2,627** | **76.5%** |
+| Benchmark                | Original   | Default   | Saved     | Aggressive | Saved     |
+| ------------------------ | ---------- | --------- | --------- | ---------- | --------- |
+| API response (JSON)      | 1,450      | 792       | 45.4%     | 782        | 46.1%     |
+| Python module (code)     | 2,734      | 2,113     | 22.7%     | 309        | 88.7%     |
+| Server log (58 lines)    | 1,389      | 1,388     | 0.1%      | 231        | 83.4%     |
+| 50 user records (list)   | 2,774      | 922       | 66.8%     | 922        | 66.8%     |
+| Verbose paragraph (text) | 101        | 96        | 5.0%      | 74         | 26.7%     |
+| **Total**                | **11,182** | **7,424** | **33.6%** | **2,627**  | **76.5%** |
 
 Bundled sample data and runner: `python benchmarks/bench.py`
 
