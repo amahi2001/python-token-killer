@@ -4,8 +4,8 @@
 
 <p align="center">
   <strong>ptk — Python Token Killer</strong><br/>
-  <strong>Minimize LLM tokens from Python objects in one call</strong><br/>
-  Zero dependencies • Auto type detection • 361 tests
+  <strong>One call. Any Python object. Fewer tokens.</strong><br/>
+  Zero dependencies · Auto type detection · 361 tests
 </p>
 
 <table align="center">
@@ -21,9 +21,9 @@
 
 ---
 
-## The Problem
+## Your LLM calls carry dead weight
 
-Every time your app calls an LLM, you're paying for tokens like these:
+A typical API response you feed into an agent:
 
 ```json
 {
@@ -52,7 +52,7 @@ Every time your app calls an LLM, you're paying for tokens like these:
 }
 ```
 
-One call to `ptk` later:
+Seven null fields, two empty containers. Your LLM reads them, bills you for them, learns nothing from them. `ptk` strips the noise:
 
 ```python
 import ptk
@@ -63,7 +63,7 @@ ptk(response)
 {"user":{"id":8821,"name":"Alice Chen","email":"alice@example.com","preferences":{"theme":"dark"},"created_at":"2024-01-15T10:30:00Z","updated_at":"2024-06-20T14:22:00Z","is_verified":true,"is_active":true}}
 ```
 
-**52% fewer tokens. Zero information lost. Zero config.**
+52% fewer tokens. Same information. No config needed.
 
 ```bash
 pip install python-token-killer
@@ -75,7 +75,7 @@ uv add python-token-killer
 
 ## Benchmarks
 
-Real token counts via tiktoken (`cl100k_base` — same tokenizer as GPT-4 and Claude):
+Token counts via tiktoken (`cl100k_base`, the tokenizer behind GPT-4 and Claude):
 
 ```
 Input                          Tokens (before)   Tokens (after)   Saved
@@ -89,23 +89,23 @@ Verbose prose (text)                     101               74      27%
 Total                                 11,182            2,627      76%
 ```
 
-At GPT-4o pricing ($2.50/1M input tokens), that 76% reduction on **10k tokens/day** saves ~**$6/month per user**. At scale, it compounds.
+At Claude Sonnet 4.6 pricing ($3/1M input tokens), a 76% reduction on 100k tokens/day saves ~$6/month per user. Multiply that by your user base and your agent loop iterations.
 
-Run yourself: `python benchmarks/bench.py`
+Run it yourself: `python benchmarks/bench.py`
 
 ---
 
-## How It Works
+## How it works
 
-`ptk` detects your input type and routes to the right compression strategy automatically:
+You pass `ptk` any Python object. It detects the content type and picks the right compression strategy:
 
-| Input | What happens | Saves |
-|---|---|---|
-| `dict` / `list` | Strips `null`, `""`, `[]`, `{}` recursively. Tabular encoding for uniform arrays. | 40–70% |
-| Code | Strips comments (preserving `# noqa`, `# type: ignore`, `TODO`). Collapses docstrings. Extracts signatures. | 25–89% |
-| Logs | Collapses duplicate lines with counts. Filters to errors + stack traces only. | 60–90% |
-| Diffs | Folds unchanged context. Strips git noise (`index`, `old mode`). | 50–75% |
-| Text | Abbreviates `implementation→impl`, `configuration→config`. Removes filler phrases. | 10–30% |
+| Input           | Strategy                                                                                                   | Savings |
+| --------------- | ---------------------------------------------------------------------------------------------------------- | ------- |
+| `dict` / `list` | Strips `null`, `""`, `[]`, `{}` recursively. Tabular encoding for uniform arrays.                          | 40–70%  |
+| Code            | Strips comments (preserves `# noqa`, `# type: ignore`, `TODO`). Collapses docstrings. Extracts signatures. | 25–89%  |
+| Logs            | Collapses duplicate lines with counts. Filters to errors and stack traces.                                 | 60–90%  |
+| Diffs           | Folds unchanged context. Strips git noise (`index`, `old mode`).                                           | 50–75%  |
+| Text            | Abbreviates verbose words (`implementation→impl`, `configuration→config`). Removes filler.                 | 10–30%  |
 
 ---
 
@@ -114,21 +114,21 @@ Run yourself: `python benchmarks/bench.py`
 ```python
 import ptk
 
-# Any Python object — auto-detected, one call
+# ── auto-detected, one call ──────────────────────────────────
 ptk.minimize(api_response)        # dict/list → compact JSON, nulls stripped
 ptk.minimize(source_code)         # strips comments, collapses docstrings
 ptk.minimize(log_output)          # dedup repeated lines, keep errors
 ptk.minimize(git_diff)            # fold context, keep changes
 ptk.minimize(any_object)          # always returns a string, never raises
 
-# Aggressive mode — maximum compression
+# ── aggressive mode: maximum compression ─────────────────────
 ptk.minimize(response, aggressive=True)
 
-# Force content type
+# ── force content type ───────────────────────────────────────
 ptk.minimize(text, content_type="code", mode="signatures")  # sigs only
 ptk.minimize(logs, content_type="log", errors_only=True)    # errors only
 
-# Stats — token counts + savings
+# ── stats: token counts + savings ────────────────────────────
 ptk.stats(response)
 # {
 #   "output": "...",
@@ -138,17 +138,21 @@ ptk.stats(response)
 #   "content_type": "dict"
 # }
 
-# Callable shorthand
+# ── callable shorthand ───────────────────────────────────────
 ptk(response)  # same as ptk.minimize(response)
+
+# ── preserve nulls when they carry meaning ───────────────────
+ptk.minimize({"status": "pending", "error": None}, strip_nulls=False)
+# → {"status":"pending","error":null}
 ```
 
 ---
 
-## Real-World Examples
+## Real-world examples
 
-### RAG Pipeline — compress retrieved documents before they enter the prompt
+### RAG pipeline: compress retrieved docs before they hit the prompt
 
-The most common place tokens are wasted in production. Retrieval returns full documents; you only need the content.
+Your retriever returns full documents. The LLM needs the content, not the metadata scaffolding around it.
 
 ```python
 import ptk
@@ -162,79 +166,82 @@ def build_context(docs: list[dict]) -> str:
     return "\n\n---\n\n".join(chunks)
 ```
 
-See [`examples/rag_pipeline.py`](examples/rag_pipeline.py) for a full working demo with token counts.
+Full working demo with token counts: [`examples/rag_pipeline.py`](examples/rag_pipeline.py)
 
 ---
 
-### LangGraph / LangChain — compress tool outputs between nodes
+### LangGraph / LangChain: compress tool outputs between nodes
+
+Drop this node between a tool call and the next LLM call. Tool outputs shrink before they re-enter the context window.
 
 ```python
 import ptk
 
 def compress_tool_output(state: dict) -> dict:
-    """Drop this node between any tool call and the next LLM call."""
+    """Compress the last tool message before the next LLM call."""
     state["messages"][-1]["content"] = ptk.minimize(
         state["messages"][-1]["content"], aggressive=True
     )
     return state
 ```
 
-See [`examples/langgraph_agent.py`](examples/langgraph_agent.py) — a complete agent loop with live token savings printed per step.
+Complete agent loop with per-step token savings: [`examples/langgraph_agent.py`](examples/langgraph_agent.py)
 
 ---
 
-### Log Triage — paste only what matters to Claude / GPT
+### Log triage: feed only failures to your LLM
+
+A 10,000-line CI log collapses to the failures and their stack traces.
 
 ```python
 import ptk
 
-# 10,000-line CI log → only the failures, instantly
 errors = ptk.minimize(ci_log, content_type="log", aggressive=True)
-# Feed `errors` to your LLM. 80%+ fewer tokens, same diagnostic signal.
+# 80%+ fewer tokens, same diagnostic signal.
 ```
 
-See [`examples/log_triage.py`](examples/log_triage.py) — reads a real log file, shows before/after.
+Before/after demo: [`examples/log_triage.py`](examples/log_triage.py)
 
 ---
 
-## API Reference
+## API reference
 
 ### `ptk.minimize(obj, *, aggressive=False, content_type=None, **kw) → str`
 
-- `aggressive=True` — maximum compression (timestamps stripped, sigs-only for code, errors-only for logs)
-- `content_type` — override auto-detection: `"dict"`, `"list"`, `"code"`, `"log"`, `"diff"`, `"text"`
-- `format` — dict output format: `"json"` (default), `"kv"`, `"tabular"`
-- `mode` — code mode: `"clean"` (default) or `"signatures"`
-- `errors_only` — log mode: keep only errors + stack traces
+- **`aggressive=True`** maximizes compression: timestamps stripped, signatures-only for code, errors-only for logs
+- **`content_type`** overrides auto-detection: `"dict"`, `"list"`, `"code"`, `"log"`, `"diff"`, `"text"`
+- **`format`** controls dict output: `"json"` (default), `"kv"`, `"tabular"`
+- **`mode`** controls code output: `"clean"` (default) or `"signatures"`
+- **`errors_only`** filters logs to errors and stack traces
 
 ### `ptk.stats(obj, **kw) → dict`
 
-Same as `minimize` but returns `output`, `original_tokens`, `minimized_tokens`, `savings_pct`, `content_type`.
+Same interface as `minimize`. Returns `output`, `original_tokens`, `minimized_tokens`, `savings_pct`, `content_type`.
 
-### `ptk(obj)` — callable shorthand
+### `ptk(obj)` callable shorthand
 
-The module itself is callable. `ptk(x)` is identical to `ptk.minimize(x)`.
+The module itself is callable. `ptk(x)` equals `ptk.minimize(x)`.
 
 ---
 
 ## Comparison
 
-| Tool | Type | What it does |
-|---|---|---|
-| **ptk** | Python library | One call, any Python object, zero deps |
-| [RTK](https://github.com/rtk-ai/rtk) | Rust CLI | Compresses shell command output for coding agents |
-| [claw-compactor](https://github.com/open-compress/claw-compactor) | Python library | 14-stage AST-aware pipeline, heavier setup |
-| [LLMLingua](https://github.com/microsoft/LLMLingua) | Python library | Neural compression, requires GPU |
+| Tool                                                              | Type           | Tradeoff                                          |
+| ----------------------------------------------------------------- | -------------- | ------------------------------------------------- |
+| **ptk**                                                           | Python library | One call, any Python object, zero deps            |
+| [RTK](https://github.com/rtk-ai/rtk)                              | Rust CLI       | Compresses shell command output for coding agents |
+| [claw-compactor](https://github.com/open-compress/claw-compactor) | Python library | 14-stage AST-aware pipeline, heavier setup        |
+| [LLMLingua](https://github.com/microsoft/LLMLingua)               | Python library | Neural compression, requires GPU                  |
 
 ---
 
 ## Design
 
-- **Zero required dependencies** — stdlib only. `tiktoken` optional for exact token counts.
-- **Never raises** — any Python object produces a string. Circular refs, `bytes`, `nan`, generators — all handled.
-- **Never mutates** — your input is always untouched.
-- **Thread-safe** — stateless singleton minimizers.
-- **Fast** — precompiled regexes, `frozenset` lookups, single-pass algorithms. Microseconds per call.
+- **Zero required dependencies.** Stdlib only. `tiktoken` is optional for exact token counts.
+- **Never raises.** Any Python object produces a string. Circular refs, `bytes`, `nan`, generators all handled.
+- **Never mutates.** Your input stays untouched.
+- **Thread-safe.** Stateless singleton minimizers.
+- **Fast.** Precompiled regexes, `frozenset` lookups, single-pass algorithms. Microseconds per call.
 
 ---
 

@@ -22,11 +22,16 @@ class ListMinimizer(Minimizer):
     # max items before sampling kicks in (aggressive mode)
     SAMPLE_THRESHOLD = 50
 
-    def _minimize(self, obj: Any, *, aggressive: bool = False, **kw: Any) -> str:
+    def _minimize(
+        self, obj: Any, *, aggressive: bool = False, strip_nulls: bool = True, **kw: Any
+    ) -> str:
         if not isinstance(obj, (list, tuple)):
             return json.dumps(obj, separators=(",", ":"), default=str)
 
-        items = [strip_nullish(i) if isinstance(i, dict) else i for i in obj if i is not None]
+        if strip_nulls:
+            items = [strip_nullish(i) if isinstance(i, dict) else i for i in obj if i is not None]
+        else:
+            items = list(obj)
 
         if not items:
             return "[]"

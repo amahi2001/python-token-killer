@@ -23,11 +23,13 @@ class DictMinimizer(Minimizer):
       - "tabular" — header-once tabular format (auto for list-of-dicts values)
     """
 
-    def _minimize(self, obj: Any, *, aggressive: bool = False, **kw: Any) -> str:
+    def _minimize(
+        self, obj: Any, *, aggressive: bool = False, strip_nulls: bool = True, **kw: Any
+    ) -> str:
         if not isinstance(obj, dict):
             obj = {"_": obj}
 
-        d = strip_nullish(obj)
+        d = strip_nullish(obj) if strip_nulls else obj
 
         if aggressive:
             d = _flatten_single_children(d)

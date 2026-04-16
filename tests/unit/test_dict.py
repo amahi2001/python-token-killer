@@ -130,3 +130,39 @@ class TestDictMinimizer:
         d = {"a": 1, "b": 2}
         first = ptk.minimize(d)
         assert first == ptk.minimize(json.loads(first))
+
+    # ── strip_nulls=False tests ───────────────────────────────────────────
+    def test_strip_nulls_false_preserves_null(self):
+        d = {"status": "pending", "error": None}
+        parsed = json.loads(ptk.minimize(d, strip_nulls=False))
+        assert "error" in parsed
+        assert parsed["error"] is None
+
+    def test_strip_nulls_false_preserves_empty_string(self):
+        d = {"name": "Alice", "bio": ""}
+        parsed = json.loads(ptk.minimize(d, strip_nulls=False))
+        assert "bio" in parsed
+        assert parsed["bio"] == ""
+
+    def test_strip_nulls_false_preserves_empty_list(self):
+        d = {"items": [1, 2], "tags": []}
+        parsed = json.loads(ptk.minimize(d, strip_nulls=False))
+        assert "tags" in parsed
+        assert parsed["tags"] == []
+
+    def test_strip_nulls_false_preserves_empty_dict(self):
+        d = {"data": {"x": 1}, "meta": {}}
+        parsed = json.loads(ptk.minimize(d, strip_nulls=False))
+        assert "meta" in parsed
+        assert parsed["meta"] == {}
+
+    def test_strip_nulls_false_nested(self):
+        d = {"user": {"name": "Bob", "bio": None, "tags": []}}
+        parsed = json.loads(ptk.minimize(d, strip_nulls=False))
+        assert parsed["user"]["bio"] is None
+        assert parsed["user"]["tags"] == []
+
+    def test_strip_nulls_true_default(self):
+        d = {"status": "pending", "error": None}
+        parsed = json.loads(ptk.minimize(d))
+        assert "error" not in parsed

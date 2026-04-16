@@ -58,6 +58,7 @@ def minimize(
     obj: Any,
     *,
     aggressive: bool = False,
+    strip_nulls: bool = True,
     content_type: ContentType | str | None = None,
     **kw: Any,
 ) -> str:
@@ -66,6 +67,7 @@ def minimize(
     Args:
         obj: dict, list, str (code/log/diff/text), or anything with __str__.
         aggressive: Apply maximum compression (may lose some fidelity).
+        strip_nulls: Remove None, "", [], {} values (default: True).
         content_type: Force a content type instead of auto-detecting.
             Accepts ContentType enum or string ("dict", "code", "log", etc.)
         **kw: Forwarded to the minimizer (format, mode, errors_only, etc.)
@@ -74,7 +76,7 @@ def minimize(
         Minimized string representation.
     """
     ct = _resolve_type(obj, content_type)
-    result: str = _ROUTER[ct].run(obj, aggressive=aggressive, **kw).output
+    result: str = _ROUTER[ct].run(obj, aggressive=aggressive, strip_nulls=strip_nulls, **kw).output
     return result
 
 
@@ -82,6 +84,7 @@ def stats(
     obj: Any,
     *,
     aggressive: bool = False,
+    strip_nulls: bool = True,
     content_type: ContentType | str | None = None,
     **kw: Any,
 ) -> dict[str, Any]:
@@ -99,7 +102,7 @@ def stats(
         }
     """
     ct = _resolve_type(obj, content_type)
-    result = _ROUTER[ct].run(obj, aggressive=aggressive, **kw)
+    result = _ROUTER[ct].run(obj, aggressive=aggressive, strip_nulls=strip_nulls, **kw)
 
     original_str = _serialize(obj)
     orig_tok, min_tok = _estimate_tokens(original_str, result.output)
