@@ -67,9 +67,9 @@ release:
 	@echo "Running check suite..."
 	@$(MAKE) check
 	@echo "Bumping version to $(VERSION)..."
-	@sed -i 's/^__version__ = ".*"/__version__ = "$(VERSION)"/' src/ptk/__init__.py
-	@sed -i 's/^    def test_version/    def test_version/' tests/unit/test_api.py
-	@sed -i 's/assert ptk.__version__ == ".*"/assert ptk.__version__ == "$(VERSION)"/' tests/unit/test_api.py
+	@sed -i '' 's/^__version__ = ".*"/__version__ = "$(VERSION)"/' src/ptk/__init__.py
+	@sed -i '' 's/^    def test_version/    def test_version/' tests/unit/test_api.py
+	@sed -i '' 's/assert ptk.__version__ == ".*"/assert ptk.__version__ == "$(VERSION)"/' tests/unit/test_api.py
 	@uv lock --quiet
 	@git add src/ptk/__init__.py tests/unit/test_api.py uv.lock
 	@git commit -m "chore: release v$(VERSION)"
