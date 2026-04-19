@@ -36,3 +36,8 @@ Thumbs.db
 *.so
 *.dylib
 dist/
+
+# Docs site (VitePress)
+docs-site/node_modules/
+docs-site/.vitepress/dist/
+docs-site/.vitepress/cache/
